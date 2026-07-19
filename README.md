@@ -1,265 +1,247 @@
 # Nescom
 
-Kompaniya boshqaruv tizimi — xodimlarni, vazifalarni, oyliklarni va kommunikatsiyani bir joydan boshqaring.
+A comprehensive company management system built with modern web technologies. Manage employees, tasks, messages, salaries, and join requests — all in one place.
 
-## Xususiyatlar
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
 
-- **Dashboard** — kompaniya statistikasi, grafiklar, tezkor ma'lumotlar
-- **Tasks** — vazifalar yaratish, tayinlash, status boshqarish (Kanban uslubi)
-- **Messages** — xodimlararo chat, suhbatlar tarixi
-- **Employees** — xodimlar ro'yxati, profil ma'lumotlari, rol boshqaruvi
-- **Salary** — oylik to'lovlari, taqdirlash kalendar, bonus/chiqimlar
-- **Settings** — kompaniya ma'lumotlari, profil sozlamalari
-- **Notifications** — real-time ogohlantirishlar (vazifa, xabar, oylik)
-- **File Upload** — hujjatlar yuklash (rasm, PDF, Word, Excel)
+## Features
 
-## Texnologiyalar
+### Authentication & Authorization
+- JWT authentication with httpOnly cookies
+- 10 role-based access control (CEO, Manager, Developer, Designer, Marketer, HR, Sales, Intern, Accountant, Support)
+- Join request approval system
+- Password hashing with bcrypt
 
-| Texnologiya  | Versiya | Maqsad                 |
-| ------------ | ------- | ---------------------- |
-| Next.js      | 16      | Framework (App Router) |
-| React        | 19      | UI komponentlari       |
-| Prisma       | 7       | ORM, DB migration      |
-| PostgreSQL   | 16      | Ma'lumotlar bazasi     |
-| Tailwind CSS | 4       | Styling                |
-| Zod          | 4       | Schema validation      |
-| bcryptjs     | 3       | Parol hashlash         |
-| jsonwebtoken | 9       | JWT autentifikatsiya   |
-| Recharts     | 3       | Grafiklar              |
-| lucide-react | 1       | Iconlar                |
+### Task Management
+- Kanban-style task board with 6 status workflow:
+  - `TODO` → `ACCEPTED` → `IN_PROGRESS` → `READY` → `DONE`
+  - `BLOCKED` status for paused tasks
+- Task assignment with priority levels (Low, Medium, High, Urgent)
+- Status change permissions based on role
 
-## O'rnatish
+### Real-time Messaging
+- Direct messaging between employees
+- Conversation list with unread counts
+- Message history with timestamps
 
-### Talablar
+### Salary Management
+- Salary records with bonus/deductions
+- Payment calendar with due date tracking
+- Mark as paid functionality
+- CSV export
+- Role-based access (CEO, Manager, Accountant only)
+
+### Employee Management
+- Add employees with role assignment
+- Employee profiles with contact information
+- Join request approval by CEO/Manager/HR
+
+### Dashboard
+- Overview stats (employees, tasks, salaries)
+- Recent activity feed
+- Quick actions
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Tailwind CSS 4 |
+| Language | TypeScript 5 (strict mode) |
+| ORM | Prisma 7 |
+| Database | PostgreSQL 16 |
+| Auth | JWT (jose) + bcryptjs |
+| Validation | Zod 4 |
+| Testing | Jest + React Testing Library |
+| Deployment | Vercel / Docker |
+
+## Getting Started
+
+### Prerequisites
 
 - Node.js 18+
-- PostgreSQL 14+
-- npm yoki yarn
+- PostgreSQL 16+
+- npm or yarn
 
-### O'rnatish qadamlari
+### Installation
 
 ```bash
-# 1. Repositoriyani clone qiling
-git clone https://github.com/your-username/company-hub.git
-cd company-hub
+# Clone the repository
+git clone https://github.com/asadbekabdulboqiyev/nescom.git
+cd nescom
 
-# 2. Kutubxonalarni o'rnating
+# Install dependencies
 npm install
 
-# 3. .env faylini yarating
+# Set up environment variables
 cp .env.example .env
-# yoki to'g'ridan-to'g'ri yarating:
+# Edit .env with your database credentials
+
+# Set up database
+npx prisma generate
+npx prisma db push
+
+# Seed database (optional)
+npm run seed
+
+# Start development server
+npm run dev
 ```
 
-### .env fayli
+### Environment Variables
 
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/companyhub"
+DATABASE_URL="postgresql://user:password@localhost:5432/nescom"
 
-# JWT
-JWT_SECRET="your-super-secret-key-here"
+# JWT (required, min 32 characters)
+JWT_SECRET="your-super-secret-key-at-least-32-characters-long"
 
 # App
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NODE_ENV="development"
 ```
 
-### Database sozlash
+## API Endpoints
 
-```bash
-# Migrationlarni qo'llash
-npx prisma migrate dev
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login |
+| POST | `/api/auth/logout` | Logout |
 
-# Boshlang'ich ma'lumotlarni qo'shish (ixtiyoriy)
-npx tsx prisma/seed.ts
+### Users
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users` | List all users |
+| GET | `/api/users/me` | Get current user |
+| POST | `/api/users` | Create user (CEO/Manager/HR) |
+| PUT | `/api/users/[id]` | Update user |
+| DELETE | `/api/users/[id]` | Delete user (CEO/Manager/HR) |
 
-# Prisma Client generatsiya qilish
-npx prisma generate
-```
+### Tasks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | List tasks |
+| POST | `/api/tasks` | Create task |
+| GET | `/api/tasks/[id]` | Get task |
+| PUT | `/api/tasks/[id]` | Update task (status, assignee) |
+| DELETE | `/api/tasks/[id]` | Delete task |
 
-### Loyihani ishga tushirish
+### Messages
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/messages` | List messages |
+| POST | `/api/messages` | Send message |
+| GET | `/api/messages/conversations` | List conversations |
 
-```bash
-# Development rejimida
-npm run dev
+### Salary
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/salary` | List salaries (CEO/Manager/Accountant) |
+| POST | `/api/salary` | Create salary record (CEO/Accountant) |
+| PUT | `/api/salary/pay/[id]` | Mark as paid (CEO/Accountant) |
 
-# Production build
-npm run build
-npm start
-```
+### Companies
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/companies` | List companies |
+| POST | `/api/companies` | Create company |
+| PUT | `/api/companies` | Update company (CEO) |
 
-Brauzerda `http://localhost:3000` oching.
+### Join Requests
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/join-requests` | List pending requests (CEO/Manager/HR) |
+| POST | `/api/join-requests` | Submit join request |
+| PUT | `/api/join-requests/[id]` | Approve/reject request |
 
-## Environment Variables
+## Role Permissions
 
-| O'zgaruvchi           | Majburiy | Tavsif                                         |
-| --------------------- | -------- | ---------------------------------------------- |
-| `DATABASE_URL`        | Ha       | PostgreSQL ulanish URL'i                       |
-| `JWT_SECRET`          | Ha       | JWT tokenlarini imzolash uchun maxfiy kalit    |
-| `NODE_ENV`            | Yo'q     | `development` yoki `production`                |
-| `NEXT_PUBLIC_APP_URL` | Yo'q     | Ilova URL'i (default: `http://localhost:3000`) |
+| Feature | CEO | Manager | Developer | Designer | Marketer | HR | Sales | Support | Intern |
+|---------|-----|---------|-----------|----------|----------|-----|-------|---------|--------|
+| Manage Users | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Manage Tasks | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| View Salary | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Manage Salary | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Manage Company | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Review Join Requests | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Send Messages | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-## API Endpoint'lari
-
-### Auth (Autentifikatsiya)
-
-| Endpoint             | Method | Tavsif            |
-| -------------------- | ------ | ----------------- |
-| `/api/auth/register` | POST   | Ro'yxatdan o'tish |
-| `/api/auth/login`    | POST   | Tizimga kirish    |
-| `/api/auth/logout`   | POST   | Tizimdan chiqish  |
-
-### Tasks (Vazifalar)
-
-| Endpoint          | Method | Tavsif             |
-| ----------------- | ------ | ------------------ |
-| `/api/tasks`      | GET    | Vazifalar ro'yxati |
-| `/api/tasks`      | POST   | Vazifa yaratish    |
-| `/api/tasks/[id]` | GET    | Bitta vazifa       |
-| `/api/tasks/[id]` | PUT    | Vazifani yangilash |
-| `/api/tasks/[id]` | DELETE | Vazifani o'chirish |
-
-### Messages (Xabarlar)
-
-| Endpoint                      | Method | Tavsif             |
-| ----------------------------- | ------ | ------------------ |
-| `/api/messages`               | GET    | Xabarlar ro'yxati  |
-| `/api/messages`               | POST   | Xabar yuborish     |
-| `/api/messages/conversations` | GET    | Suhbatlar ro'yxati |
-
-### Users (Foydalanuvchilar)
-
-| Endpoint                        | Method | Tavsif               |
-| ------------------------------- | ------ | -------------------- |
-| `/api/users`                    | GET    | Xodimlar ro'yxati    |
-| `/api/users`                    | POST   | Yangi xodim qo'shish |
-| `/api/users/[id]`               | GET    | Bitta xodim          |
-| `/api/users/[id]`               | PUT    | Xodimni yangilash    |
-| `/api/users/[id]`               | DELETE | Xodimni o'chirish    |
-| `/api/users/me`                 | GET    | Joriy foydalanuvchi  |
-| `/api/users/me/change-password` | POST   | Parolni o'zgartirish |
-
-### Salary (Oylik)
-
-| Endpoint               | Method | Tavsif            |
-| ---------------------- | ------ | ----------------- |
-| `/api/salary`          | GET    | Oyliklar ro'yxati |
-| `/api/salary`          | POST   | Oylik yaratish    |
-| `/api/salary/[id]`     | GET    | Bitta oylik       |
-| `/api/salary/[id]`     | PUT    | Oylikni yangilash |
-| `/api/salary/pay/[id]` | POST   | Oylikni to'lash   |
-
-### Companies (Kompaniyalar)
-
-| Endpoint         | Method | Tavsif                |
-| ---------------- | ------ | --------------------- |
-| `/api/companies` | GET    | Kompaniyalar ro'yxati |
-| `/api/companies` | POST   | Kompaniya yaratish    |
-| `/api/companies` | PUT    | Kompaniyani yangilash |
-
-### Notifications (Ogohlantirishlar)
-
-| Endpoint             | Method | Tavsif                                 |
-| -------------------- | ------ | -------------------------------------- |
-| `/api/notifications` | GET    | Ogohlantirishlar ro'yxati              |
-| `/api/notifications` | POST   | Ogohlantirish yaratish                 |
-| `/api/notifications` | PATCH  | Ogohlantirishni o'qilgan deb belgilash |
-
-### Upload (Yuklash)
-
-| Endpoint      | Method | Tavsif                  |
-| ------------- | ------ | ----------------------- |
-| `/api/upload` | POST   | Fayl yuklash (max 10MB) |
-
-## Rollar va Ruxsatlar
-
-| Roli      | Vazifalar   | Xodimlar    | Oylik       | Xabarlar | Kompaniya |
-| --------- | ----------- | ----------- | ----------- | -------- | --------- |
-| CEO       | ✅ Barchasi | ✅ Barchasi | ✅ Barchasi | ✅       | ✅        |
-| Manager   | ✅ CRUD     | 📖 O'qish   | 📖 O'qish   | ✅       | ❌        |
-| Developer | ✅ CRUD     | ❌          | 📖 O'qish   | ✅       | ❌        |
-| Designer  | ✅ CRUD     | ❌          | 📖 O'qish   | ✅       | ❌        |
-| Marketer  | ✅ CRUD     | ❌          | 📖 O'qish   | ✅       | ❌        |
-
-## Loyiha tuzilishi
+## Project Structure
 
 ```
-company-hub/
-├── prisma/
-│   ├── schema.prisma      # Database schema
-│   ├── seed.ts             # Boshlang'ich ma'lumotlar
-│   └── migrations/         # Migration fayllari
+nescom/
+├── prisma/                 # Database schema & migrations
 ├── src/
-│   ├── app/
-│   │   ├── api/            # API endpoint'lari
-│   │   ├── (auth)/         # Auth sahifalari
-│   │   └── (dashboard)/    # Dashboard sahifalari
-│   ├── components/         # React komponentlari
-│   ├── contexts/           # React context'lar
-│   ├── hooks/              # Custom hook'lar
-│   └── lib/                # Yordamchi kutubxonalar
-│       ├── auth.ts         # JWT autentifikatsiya
-│       ├── prisma.ts       # Prisma client
-│       ├── rbac.ts         # Rollarga asoslangan ruxsat
-│       ├── roles.ts        # Rol konfiguratsiyasi
-│       ├── utils.ts        # Yordamchi funksiyalar
-│       └── validation.ts   # Zod validation
-├── public/                 # Statik fayllar
-├── .env                    # Environment variables
-├── package.json
-└── tsconfig.json
+│   ├── app/                # Next.js App Router
+│   │   ├── (auth)/         # Auth pages (login, register)
+│   │   ├── (dashboard)/    # Dashboard pages
+│   │   └── api/            # API routes
+│   ├── components/         # React components
+│   │   ├── charts/         # Chart components
+│   │   ├── settings/       # Settings tab components
+│   │   └── __tests__/      # Component tests
+│   ├── contexts/           # React contexts (Auth)
+│   ├── hooks/              # Custom hooks
+│   ├── lib/                # Utilities (auth, rbac, validation)
+│   │   └── __tests__/      # Unit tests
+│   └── types/              # TypeScript types
+├── tests/                  # API integration tests
+├── docs/                   # Documentation
+├── Dockerfile              # Docker configuration
+├── docker-compose.yml      # Docker Compose
+└── .github/workflows/      # CI/CD
+```
+
+## Testing
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
 ## Deployment
 
-### Vercel
-
-1. GitHub repositoriyangizni Vercel'ga ulang
-2. Environment variables qo'shing
-3. Deploy tugmasini bosing
+### Vercel (Recommended)
 
 ```bash
-# Vercel CLI bilan
-npm i -g vercel
-vercel
+vercel deploy
 ```
 
 ### Docker
 
-```dockerfile
-FROM node:18-alpine AS base
-WORKDIR /app
-
-FROM base AS deps
-COPY package*.json ./
-RUN npm ci
-
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
-
-FROM base AS runner
-WORKDIR /app
-ENV NODE_ENV production
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-EXPOSE 3000
-CMD ["node", "server.js"]
+```bash
+docker-compose up -d
 ```
+
+### Manual
 
 ```bash
-# Docker build va run
-docker build -t company-hub .
-docker run -p 3000:3000 company-hub
+npm run build
+npm start
 ```
 
-## Qo'shishga hissa qo'shish
+## Contributing
 
-CONTRIBUTING.md faylini o'qing.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## Litsensiya
+## License
 
-MIT License — batafsil LICENSE faylida.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Author
+
+**Asadbek Abdulboqiyev** - [GitHub](https://github.com/asadbekabdulboqiyev)
