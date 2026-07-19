@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  description String?
+  logo        String?
+  industry    String?
+  createdAt   DateTime @default(now())
+
+  users         User[]
+  tasks         Task[]
+  messages      Message[]
+  files         File[]
+  salaries      Salary[]
+  notifications Notification[]
+  joinRequests  JoinRequest[]
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String
+  name            String
+  role            Role
+  avatar          String?
+  phone           String?
+  salary          Float?
+  salaryDueDate   DateTime?
+  startDate       DateTime?
+  companyId       String
+  createdAt       DateTime  @default(now())
+  department      String?
+
+  company          Company          @relation(fields: [companyId], references: [id])
+  notifications    Notification[]
+  assignedTasks    Task[]           @relation("TaskAssignee")
+  createdTasks     Task[]           @relation("TaskCreator")
+  sentMessages     Message[]        @relation("MessageSender")
+  recvMessages     Message[]        @relation("MessageReceiver")
+  sentFiles        File[]           @relation("FileSender")
+  recvFiles        File[]           @relation("FileReceiver")
+  salaries         Salary[]
+  joinRequests     JoinRequest[]    @relation("JoinRequestUser")
+  reviewedRequests JoinRequest[]    @relation("Reviewer")
+
+  @@index([companyId])
+  @@index([email])
+}
+
+enum Role {
+  CEO
+  MANAGER
+  DEVELOPER
+  DESIGNER
+  MARKETER
+  HR
+  SALES
+  INTERN
+  ACCOUNTANT
+  SUPPORT
+  PENDING
+}
+
+model JoinRequest {
+  id         String            @id @default(cuid())
+  userId     String
+  companyId  String
+  status     JoinRequestStatus @default(PENDING)
+  message    String?
+  reviewedBy String?
+  reviewedAt DateTime?
+  createdAt  DateTime          @default(now())
+
+  user     User              @relation("JoinRequestUser", fields: [userId], references: [id])
+  company  Company           @relation(fields: [companyId], references: [id])
+  reviewer User?             @relation("Reviewer", fields: [reviewedBy], references: [id])
+
+  @@index([companyId])
+  @@index([status])
+  @@index([userId])
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  assigneeId  String?
+  creatorId   String
+  companyId   String
+  createdAt   DateTime   @default(now())
+  tags        String[]
+
+  assignee  User?   @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  creator   User    @relation("TaskCreator", fields: [creatorId], references: [id])
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([assigneeId])
+  @@index([creatorId])
+  @@index([status])
+  @@index([companyId, status])
+  @@index([companyId, assigneeId])
+}
+
+enum TaskStatus {
+  TODO
+  ACCEPTED
+  IN_PROGRESS
+  READY
+  DONE
+  BLOCKED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Message {
+  id         String    @id @default(cuid())
+  content    String
+  senderId   String
+  receiverId String
+  companyId  String
+  createdAt  DateTime  @default(now())
+  read       Boolean   @default(false)
+  readAt     DateTime?
+
+  sender   User    @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User    @relation("MessageReceiver", fields: [receiverId], references: [id])
+  company  Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+  @@index([companyId, senderId, receiverId])
+}
+
+model File {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  size       Int
+  type       String
+  senderId   String
+  receiverId String
+  companyId  String
+  createdAt  DateTime @default(now())
+
+  sender   User    @relation("FileSender", fields: [senderId], references: [id])
+  receiver User    @relation("FileReceiver", fields: [receiverId], references: [id])
+  company  Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Salary {
+  id         String       @id @default(cuid())
+  userId     String
+  amount     Decimal      @db.Decimal(10, 2)
+  paidAt     DateTime?
+  dueDate    DateTime
+  status     SalaryStatus @default(PENDING)
+  companyId  String
+  bonus      Decimal      @default(0) @db.Decimal(10, 2)
+  deductions Decimal      @default(0) @db.Decimal(10, 2)
+
+  user    User    @relation(fields: [userId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([companyId, status])
+  @@index([companyId, userId])
+}
+
+enum SalaryStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  read      Boolean          @default(false)
+  companyId String
+  createdAt DateTime         @default(now())
+  link      String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([userId])
+  @@index([read])
+  @@index([companyId, userId, read])
+}
+
+enum NotificationType {
+  TASK
+  MESSAGE
+  SALARY
+}
