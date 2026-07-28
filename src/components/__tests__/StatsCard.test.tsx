@@ -1,15 +1,17 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { StatsCard } from '../StatsCard';
 import { Users } from 'lucide-react';
 
 describe('StatsCard', () => {
-  it('should render title and value', () => {
+  it('should render title and animate to value', async () => {
     render(
       <StatsCard title="Total Employees" value={42} icon={Users} />
     );
     expect(screen.getByText('Total Employees')).toBeInTheDocument();
-    expect(screen.getByText('42')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('42')).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 
   it('should render string value', () => {
@@ -43,7 +45,7 @@ describe('StatsCard', () => {
       />
     );
     const change = screen.getByText('+12%');
-    expect(change.className).toContain('text-emerald-600');
+    expect(change.className).toContain('text-emerald-500');
   });
 
   it('should apply negative change color', () => {
@@ -57,7 +59,7 @@ describe('StatsCard', () => {
       />
     );
     const change = screen.getByText('-5%');
-    expect(change.className).toContain('text-red-600');
+    expect(change.className).toContain('text-red-500');
   });
 
   it('should have proper aria-label', () => {

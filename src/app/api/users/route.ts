@@ -11,24 +11,35 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const users = await prisma.user.findMany({
-      where: { companyId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        avatar: true,
-        phone: true,
-        salary: true,
-        salaryDueDate: true,
-        startDate: true,
-        createdAt: true,
-      },
-    });
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)));
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where: { companyId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          avatar: true,
+          phone: true,
+          salary: true,
+          salaryDueDate: true,
+          startDate: true,
+          createdAt: true,
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.user.count({ where: { companyId } }),
+    ]);
 
     return NextResponse.json(
-      { users },
+      { users, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
       {
         headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
       }

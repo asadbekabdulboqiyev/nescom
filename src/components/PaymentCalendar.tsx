@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Calendar, Clock, DollarSign, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 interface Payment {
   id: string;
@@ -50,13 +50,11 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
   const [isMobile, setIsMobile] = useState(false);
 
   // Check for mobile on mount
-  useMemo(() => {
-    if (typeof window !== 'undefined') {
-      setIsMobile(window.innerWidth < 768);
-      const handleResize = () => setIsMobile(window.innerWidth < 768);
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
-    }
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   const year = currentDate.getFullYear();
@@ -68,14 +66,16 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
     const map: Record<number, Payment[]> = {};
     payments.forEach((p) => {
       const d = new Date(p.dueDate);
-      if (d.getFullYear() === year && d.getMonth() === month) {
+      const y = d.getFullYear();
+      const m = d.getMonth();
+      if (y === currentDate.getFullYear() && m === currentDate.getMonth()) {
         const day = d.getDate();
         if (!map[day]) map[day] = [];
         map[day].push(p);
       }
     });
     return map;
-  }, [payments, year, month]);
+  }, [payments, currentDate]);
 
   const today = new Date();
 

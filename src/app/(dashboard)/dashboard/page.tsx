@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { Task, User, Salary } from '@/types';
 import Link from 'next/link';
 
+
 const SalaryOverview = dynamic(
   () => import('@/components/charts/SalaryOverview').then((mod) => mod.SalaryOverview),
   {
@@ -256,6 +257,8 @@ export default function DashboardPage() {
             change="Active team members"
             changeType="positive"
             icon={Users}
+            gradient="blue"
+            sparklineData={[stats.totalEmployees, stats.totalEmployees * 0.8, stats.totalEmployees * 0.9, stats.totalEmployees]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '50ms' }}>
@@ -265,6 +268,8 @@ export default function DashboardPage() {
             change="In progress"
             changeType="positive"
             icon={CheckSquare}
+            gradient="emerald"
+            sparklineData={[stats.activeTasks * 0.6, stats.activeTasks * 0.8, stats.activeTasks * 0.7, stats.activeTasks]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '100ms' }}>
@@ -274,6 +279,8 @@ export default function DashboardPage() {
             change="Due this month"
             changeType="negative"
             icon={DollarSign}
+            gradient="amber"
+            sparklineData={[stats.pendingSalaries * 1.2, stats.pendingSalaries * 1.1, stats.pendingSalaries, stats.pendingSalaries * 0.9]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '150ms' }}>
@@ -283,6 +290,8 @@ export default function DashboardPage() {
             change="Tasks done"
             changeType="positive"
             icon={Clock}
+            gradient="violet"
+            sparklineData={[stats.completedTasks * 0.5, stats.completedTasks * 0.7, stats.completedTasks * 0.85, stats.completedTasks]}
           />
         </div>
       </div>

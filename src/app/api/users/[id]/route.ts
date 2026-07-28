@@ -136,7 +136,19 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    await prisma.user.delete({ where: { id } });
+    await prisma.$transaction([
+      prisma.notification.deleteMany({ where: { userId: id } }),
+      prisma.message.deleteMany({ where: { senderId: id } }),
+      prisma.message.deleteMany({ where: { receiverId: id } }),
+      prisma.file.deleteMany({ where: { senderId: id } }),
+      prisma.file.deleteMany({ where: { receiverId: id } }),
+      prisma.salary.deleteMany({ where: { userId: id } }),
+      prisma.task.deleteMany({ where: { assigneeId: id } }),
+      prisma.task.deleteMany({ where: { creatorId: id } }),
+      prisma.joinRequest.deleteMany({ where: { userId: id } }),
+      prisma.joinRequest.deleteMany({ where: { reviewedBy: id } }),
+      prisma.user.delete({ where: { id } }),
+    ]);
 
     return NextResponse.json({ message: 'User deleted' });
   } catch (error) {

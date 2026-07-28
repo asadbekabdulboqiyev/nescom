@@ -14,6 +14,19 @@ const loginFailMap = new Map<string, { count: number; resetTime: number }>();
 const LOGIN_FAIL_WINDOW = 15 * 60 * 1000;
 const LOGIN_FAIL_MAX = 5;
 
+const apiRateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const API_RATE_LIMIT_WINDOW = 60 * 1000;
+const API_RATE_LIMIT_MAX = 200;
+
+function cleanupMap(map: Map<string, { count: number; resetTime: number }>, maxAge: number) {
+  const now = Date.now();
+  for (const [key, entry] of map) {
+    if (now > entry.resetTime + maxAge) {
+      map.delete(key);
+    }
+  }
+}
+
 function isLoginRateLimited(key: string): boolean {
   const now = Date.now();
   const entry = loginFailMap.get(key);
@@ -62,6 +75,19 @@ function isRateLimited(key: string): boolean {
   return entry.count > RATE_LIMIT_MAX;
 }
 
+function isApiRateLimited(key: string): boolean {
+  const now = Date.now();
+  const entry = apiRateLimitMap.get(key);
+
+  if (!entry || now > entry.resetTime) {
+    apiRateLimitMap.set(key, { count: 1, resetTime: now + API_RATE_LIMIT_WINDOW });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > API_RATE_LIMIT_MAX;
+}
+
 function isCsrfSafe(request: NextRequest): boolean {
   const method = request.method;
   if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
@@ -75,6 +101,15 @@ function isCsrfSafe(request: NextRequest): boolean {
     try {
       const originUrl = new URL(origin);
       if (originUrl.host !== host) {
+        const referer = request.headers.get('referer');
+        if (referer) {
+          try {
+            const refererUrl = new URL(referer);
+            if (refererUrl.host === host) {
+              return true;
+            }
+          } catch {}
+        }
         return false;
       }
     } catch {
@@ -107,9 +142,19 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
+  cleanupMap(rateLimitMap, RATE_LIMIT_WINDOW * 2);
+  cleanupMap(apiRateLimitMap, API_RATE_LIMIT_WINDOW * 2);
+
   const rateLimitKey = getRateLimitKey(request);
   if (isRateLimited(rateLimitKey)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
+    const apiLimitKey = `${rateLimitKey}:${pathname}`;
+    if (isApiRateLimited(apiLimitKey)) {
+      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+    }
   }
 
   if (pathname === '/api/auth/login' && method === 'POST') {
@@ -159,14 +204,10 @@ export async function proxy(request: NextRequest) {
       }
 
       const response = NextResponse.next();
-      if (!request.headers.get('x-user-id'))
-        response.headers.set('x-user-id', payload.userId as string);
-      if (!request.headers.get('x-user-email'))
-        response.headers.set('x-user-email', payload.email as string);
-      if (!request.headers.get('x-company-id'))
-        response.headers.set('x-company-id', payload.companyId as string);
-      if (!request.headers.get('x-user-role'))
-        response.headers.set('x-user-role', payload.role as string);
+      response.headers.set('x-user-id', payload.userId as string);
+      response.headers.set('x-user-email', payload.email as string);
+      response.headers.set('x-company-id', payload.companyId as string);
+      response.headers.set('x-user-role', payload.role as string);
       return response;
     } catch {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });

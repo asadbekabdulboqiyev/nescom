@@ -14,11 +14,13 @@
     "check": "npm run typecheck && npm run lint && npm run format:check",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:integration": "DATABASE_URL=postgresql://asadbek@localhost:5432/companyhub npx jest tests/integration.test.ts --no-cache"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "@types/ws": "^8.18.1",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -33,6 +35,7 @@
     "react-dom": "19.2.4",
     "recharts": "^3.9.2",
     "tailwind-merge": "^3.6.0",
+    "ws": "^8.21.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

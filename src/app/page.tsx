@@ -1,7 +1,5 @@
-export const dynamic = 'force-dynamic';
+import { redirect } from 'next/navigation';
 
-import LoginForm from '@/components/LoginForm';
-
-export default function LoginPage() {
-  return <LoginForm />;
+export default function RootPage() {
+  redirect('/login');
 }

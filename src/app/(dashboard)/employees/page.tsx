@@ -18,6 +18,7 @@ import {
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSearchParams } from 'next/navigation';
 
 interface Employee {
   id: string;
@@ -40,9 +41,11 @@ const roleColors: Record<string, 'info' | 'success' | 'warning' | 'danger' | 'de
 
 export default function EmployeesPage() {
   const { user: currentUser, token } = useAuth();
+  const searchParams = useSearchParams();
+  const initialSearch = searchParams.get('search') || '';
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [filter, setFilter] = useState('all');
 
   const [deleteTarget, setDeleteTarget] = useState<Employee | null>(null);
@@ -92,6 +95,7 @@ export default function EmployeesPage() {
       const res = await fetch(`/api/users/${deleteTarget.id}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) {
         const data = await res.json();

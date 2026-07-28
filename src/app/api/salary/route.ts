@@ -33,23 +33,31 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
     const status = searchParams.get('status');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)));
+    const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { companyId };
     if (userId) where.userId = userId;
     if (status) where.status = status;
 
-    const salaries = await prisma.salary.findMany({
-      where,
-      include: {
-        user: { select: { id: true, name: true, avatar: true } },
-      },
-      orderBy: { dueDate: 'desc' },
-    });
+    const [salaries, total] = await Promise.all([
+      prisma.salary.findMany({
+        where,
+        include: {
+          user: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { dueDate: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.salary.count({ where }),
+    ]);
 
     const serialized = salaries.map((s) => serializeSalary(s as Record<string, unknown>));
 
     return NextResponse.json(
-      { salaries: serialized },
+      { salaries: serialized, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
       {
         headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
       }

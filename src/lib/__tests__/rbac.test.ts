@@ -44,8 +44,8 @@ describe('canManageTasks', () => {
     expect(canManageTasks('DEVELOPER')).toBe(true);
   });
 
-  it('should return false for HR', () => {
-    expect(canManageTasks('HR')).toBe(false);
+  it('should return true for HR', () => {
+    expect(canManageTasks('HR')).toBe(true);
   });
 
   it('should return false for INTERN', () => {

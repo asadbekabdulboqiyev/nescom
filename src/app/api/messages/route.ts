@@ -14,6 +14,9 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const targetUserId = searchParams.get('userId');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)));
+    const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
       companyId,
@@ -27,17 +30,22 @@ export async function GET(request: Request) {
       ];
     }
 
-    const messages = await prisma.message.findMany({
-      where,
-      include: {
-        sender: { select: { id: true, name: true, avatar: true } },
-        receiver: { select: { id: true, name: true, avatar: true } },
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+    const [messages, total] = await Promise.all([
+      prisma.message.findMany({
+        where,
+        include: {
+          sender: { select: { id: true, name: true, avatar: true } },
+          receiver: { select: { id: true, name: true, avatar: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+        skip,
+        take: limit,
+      }),
+      prisma.message.count({ where }),
+    ]);
 
     return NextResponse.json(
-      { messages },
+      { messages, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
       {
         headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
       }

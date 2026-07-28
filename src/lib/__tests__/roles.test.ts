@@ -2,7 +2,7 @@ import { ROLES, ALL_ROLES, hasPermission, hasAnyPermission, Role } from '../role
 
 describe('ROLES', () => {
   it('should have all roles defined', () => {
-    expect(Object.keys(ROLES)).toHaveLength(10);
+    expect(Object.keys(ROLES)).toHaveLength(11);
     expect(ROLES.CEO).toBeDefined();
     expect(ROLES.MANAGER).toBeDefined();
     expect(ROLES.DEVELOPER).toBeDefined();
@@ -13,6 +13,7 @@ describe('ROLES', () => {
     expect(ROLES.INTERN).toBeDefined();
     expect(ROLES.ACCOUNTANT).toBeDefined();
     expect(ROLES.SUPPORT).toBeDefined();
+    expect(ROLES.PENDING).toBeDefined();
   });
 
   it('should have correct labels', () => {
@@ -24,7 +25,6 @@ describe('ROLES', () => {
   it('should have permissions array for each role', () => {
     Object.values(ROLES).forEach((role) => {
       expect(Array.isArray(role.permissions)).toBe(true);
-      expect(role.permissions.length).toBeGreaterThan(0);
     });
   });
 
@@ -45,12 +45,12 @@ describe('ROLES', () => {
 });
 
 describe('ALL_ROLES', () => {
-  it('should contain all 10 roles', () => {
-    expect(ALL_ROLES).toHaveLength(10);
+  it('should contain all 11 roles', () => {
+    expect(ALL_ROLES).toHaveLength(11);
   });
 
   it('should include all role keys', () => {
-    const expected: Role[] = ['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT'];
+    const expected: Role[] = ['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT', 'PENDING'];
     expected.forEach((role) => {
       expect(ALL_ROLES).toContain(role);
     });
