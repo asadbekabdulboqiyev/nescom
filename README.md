@@ -130,7 +130,8 @@ NODE_ENV="development"
 nescom/
 ├── prisma/                     # Database schema & migrations
 │   ├── schema.prisma           # Prisma schema (8 models)
-│   └── seed.ts                 # Database seed script
+│   ├── seed.ts                 # Database seed script
+│   └── migrations/             # Database migrations
 ├── src/
 │   ├── app/                    # Next.js App Router
 │   │   ├── (auth)/             # Auth pages (login, register)
@@ -160,6 +161,7 @@ nescom/
 │   ├── hooks/                  # Custom hooks
 │   ├── lib/                    # Utilities (auth, rbac, validation)
 │   │   └── __tests__/          # Unit tests
+│   ├── proxy.ts                # API proxy utilities
 │   └── types/                  # TypeScript types
 ├── tests/                      # API integration tests
 ├── docs/                       # Documentation (API, Database)
@@ -220,6 +222,8 @@ nescom/
 | `GET` | `/api/companies` | List companies |
 | `POST` | `/api/companies` | Create company |
 | `PUT` | `/api/companies` | Update company (CEO) |
+
+> 💡 All list endpoints support **pagination** via `?page=1&limit=50` query parameters. Response includes `{ pagination: { page, limit, total, pages } }`.
 
 ### Join Requests
 | Method | Endpoint | Description |
