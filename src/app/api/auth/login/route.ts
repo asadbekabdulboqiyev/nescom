@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken } from '@/lib/auth';
 import { loginSchema, validateRequest } from '@/lib/validation';
-import { recordLoginFailure, resetLoginFailures } from '@/middleware';
+import { recordLoginFailure, resetLoginFailures } from '@/proxy';
 import { handleApiError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import type { ApiResponse } from '@/types';

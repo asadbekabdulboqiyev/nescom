@@ -14,7 +14,7 @@
 
 # Backend / API
 /src/lib/ @nescom/backend
-/src/middleware.ts @nescom/backend
+/src/proxy.ts @nescom/backend
 
 # DevOps & Infrastructure
 /Dockerfile @nescom/devops

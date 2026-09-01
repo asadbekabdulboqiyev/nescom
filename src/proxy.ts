@@ -140,7 +140,7 @@ function isPublicApi(pathname: string, method: string): boolean {
   return false;
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
