@@ -5,7 +5,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { CompanySettings } from '@/components/settings/CompanySettings';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
-import { NotificationSettings, type NotificationPrefs } from '@/components/settings/NotificationSettings';
+import {
+  NotificationSettings,
+  type NotificationPrefs,
+} from '@/components/settings/NotificationSettings';
 import { SecuritySettings } from '@/components/settings/SecuritySettings';
 
 const tabs = [
@@ -198,9 +201,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-sm text-slate-500">
-          Manage your company and account settings
-        </p>
+        <p className="text-sm text-slate-500">Manage your company and account settings</p>
       </div>
 
       {error && (

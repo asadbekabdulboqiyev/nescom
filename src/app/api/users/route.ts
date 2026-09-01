@@ -3,12 +3,19 @@ import { prisma } from '@/lib/prisma';
 import { createUserSchema, validateRequest } from '@/lib/validation';
 import { canManageUsers } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, PaginatedResponse, User } from '@/types';
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -30,6 +37,7 @@ export async function GET(request: Request) {
           salaryDueDate: true,
           startDate: true,
           createdAt: true,
+          companyId: true,
         },
         skip,
         take: limit,
@@ -38,30 +46,51 @@ export async function GET(request: Request) {
       prisma.user.count({ where: { companyId } }),
     ]);
 
-    return NextResponse.json(
-      { users, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
-      {
-        headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
-      }
-    );
+    const typedUsers = users.map((u) => ({
+      ...u,
+      salary: u.salary ?? null,
+      salaryDueDate: u.salaryDueDate?.toISOString() ?? null,
+      startDate: u.startDate?.toISOString() ?? null,
+      createdAt: u.createdAt.toISOString(),
+    }));
+
+    const response: PaginatedResponse<User> = {
+      success: true,
+      data: typedUsers,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    };
+
+    logger.info('Users listed', {
+      method: 'GET',
+      path: '/api/users',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json(response, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+    });
   } catch (error) {
-    console.error('Get users error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get users error', { method: 'GET', path: '/api/users', cause: error });
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canManageUsers(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to create users' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to create users' },
         { status: 403 }
       );
     }
@@ -70,17 +99,35 @@ export async function POST(request: Request) {
     const validation = validateRequest(createUserSchema, body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
     }
 
-    const { email, name, role, phone, salary, salaryDueDate, startDate, password: rawPassword } = validation.data;
+    const {
+      email,
+      name,
+      role,
+      phone,
+      salary,
+      salaryDueDate,
+      startDate,
+      password: rawPassword,
+    } = validation.data;
 
     if (!email || !name || !role) {
-      return NextResponse.json({ error: 'Email, name and role are required' }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Email, name and role are required' },
+        { status: 400 }
+      );
     }
 
     if (!rawPassword || rawPassword.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Password must be at least 6 characters' },
+        { status: 400 }
+      );
     }
 
     const bcrypt = await import('bcryptjs');
@@ -109,12 +156,30 @@ export async function POST(request: Request) {
         salaryDueDate: true,
         startDate: true,
         createdAt: true,
+        companyId: true,
       },
     });
 
-    return NextResponse.json({ user }, { status: 201 });
+    const typedUser: User = {
+      ...user,
+      salary: user.salary ?? null,
+      salaryDueDate: user.salaryDueDate?.toISOString() ?? null,
+      startDate: user.startDate?.toISOString() ?? null,
+      createdAt: user.createdAt.toISOString(),
+    };
+
+    logger.info('User created', {
+      method: 'POST',
+      path: '/api/users',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ user: User }>>(
+      { success: true, data: { user: typedUser } },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Create user error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Create user error', { method: 'POST', path: '/api/users', cause: error });
+    return handleApiError(error);
   }
 }

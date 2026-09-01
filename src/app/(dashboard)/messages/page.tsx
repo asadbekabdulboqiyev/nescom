@@ -160,9 +160,7 @@ export default function MessagesPage() {
               </button>
               <Avatar src={selectedConv.user.avatar} alt={selectedConv.user.name} size="sm" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  {selectedConv.user.name}
-                </p>
+                <p className="text-sm font-semibold text-slate-900">{selectedConv.user.name}</p>
               </div>
             </div>
 
@@ -174,9 +172,7 @@ export default function MessagesPage() {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <MessageSquare className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-              <p className="text-slate-500 font-medium">
-                Select a conversation
-              </p>
+              <p className="text-slate-500 font-medium">Select a conversation</p>
               <p className="text-sm text-slate-400 mt-1">
                 Choose a contact from the sidebar to start messaging
               </p>

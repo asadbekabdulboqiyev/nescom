@@ -1,21 +1,37 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { toNumber } from '@/lib/utils';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, Salary } from '@/types';
 
-function serializeSalary(salary: Record<string, unknown>) {
+function serializeSalary(s: Record<string, unknown>): Salary {
+  const dueDate = s.dueDate as Date;
+  const paidAt = s.paidAt as Date | null | undefined;
+  const user = s.user as { id: string; name: string; avatar: string | null } | undefined;
   return {
-    ...salary,
-    amount: toNumber(salary.amount),
-    bonus: toNumber(salary.bonus),
-    deductions: toNumber(salary.deductions),
+    id: s.id as string,
+    userId: s.userId as string,
+    amount: toNumber(s.amount),
+    bonus: toNumber(s.bonus),
+    deductions: toNumber(s.deductions),
+    status: s.status as string,
+    dueDate: dueDate.toISOString(),
+    paidAt: paidAt?.toISOString() ?? null,
+    companyId: s.companyId as string,
+    user: user ? { id: user.id, name: user.name, avatar: user.avatar ?? null } : undefined,
   };
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -28,21 +44,41 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
 
     if (!salary) {
-      return NextResponse.json({ error: 'Salary not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Salary not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(serializeSalary(salary as Record<string, unknown>));
+    logger.info('Salary fetched', {
+      method: 'GET',
+      path: `/api/salary/${id}`,
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ salary: Salary }>>({
+      success: true,
+      data: { salary: serializeSalary(salary as unknown as Record<string, unknown>) },
+    });
   } catch (error) {
-    console.error('Get salary error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get salary error', {
+      method: 'GET',
+      path: `/api/salary/${await params.then((p) => p.id)}`,
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -54,7 +90,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     if (!existingSalary) {
-      return NextResponse.json({ error: 'Salary not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Salary not found' },
+        { status: 404 }
+      );
     }
 
     const salary = await prisma.salary.update({
@@ -70,9 +109,22 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       },
     });
 
-    return NextResponse.json(serializeSalary(salary as Record<string, unknown>));
+    logger.info('Salary updated', {
+      method: 'PUT',
+      path: `/api/salary/${id}`,
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ salary: Salary }>>({
+      success: true,
+      data: { salary: serializeSalary(salary as unknown as Record<string, unknown>) },
+    });
   } catch (error) {
-    console.error('Update salary error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Update salary error', {
+      method: 'PUT',
+      path: `/api/salary/${await params.then((p) => p.id)}`,
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }

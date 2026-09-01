@@ -46,9 +46,7 @@ export function TasksByStatus({ data }: { data: TaskData[] }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Tasks by Status</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {total} total tasks across all statuses
-          </p>
+          <p className="text-xs text-slate-500 mt-0.5">{total} total tasks across all statuses</p>
         </div>
         <div className="rounded-lg bg-slate-50 px-3 py-1.5">
           <span className="text-sm font-bold text-slate-900">{total}</span>
@@ -91,10 +89,22 @@ export function TasksByStatus({ data }: { data: TaskData[] }) {
           </Pie>
 
           {/* Center label */}
-          <text x="50%" y="48%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-900">
+          <text
+            x="50%"
+            y="48%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-slate-900"
+          >
             <tspan className="text-2xl font-bold">{total}</tspan>
           </text>
-          <text x="50%" y="58%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400">
+          <text
+            x="50%"
+            y="58%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-slate-400"
+          >
             <tspan className="text-xs">tasks</tspan>
           </text>
         </PieChart>

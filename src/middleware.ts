@@ -1,10 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
+function getJwtSecret(): Uint8Array {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return new TextEncoder().encode(process.env.JWT_SECRET);
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -138,7 +140,7 @@ function isPublicApi(pathname: string, method: string): boolean {
   return false;
 }
 
-export async function proxy(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
@@ -153,7 +155,10 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/')) {
     const apiLimitKey = `${rateLimitKey}:${pathname}`;
     if (isApiRateLimited(apiLimitKey)) {
-      return NextResponse.json({ error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
     }
   }
 
@@ -196,11 +201,17 @@ export async function proxy(request: NextRequest) {
     }
 
     try {
-      const { payload } = await jwtVerify(authToken, JWT_SECRET);
+      const { payload } = await jwtVerify(authToken, getJwtSecret());
 
       // Block PENDING users from accessing dashboard
       if (payload.role === 'PENDING') {
-        return NextResponse.json({ error: 'Your account is pending approval. Please wait for the company admin to approve your request.' }, { status: 403 });
+        return NextResponse.json(
+          {
+            error:
+              'Your account is pending approval. Please wait for the company admin to approve your request.',
+          },
+          { status: 403 }
+        );
       }
 
       const response = NextResponse.next();
@@ -231,7 +242,7 @@ export async function proxy(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(cookieToken, JWT_SECRET);
+      await jwtVerify(cookieToken, getJwtSecret());
       return NextResponse.next();
     } catch {
       const loginUrl = new URL('/login', request.url);

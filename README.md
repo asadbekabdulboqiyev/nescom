@@ -14,12 +14,14 @@ A full-stack company management platform built with **Next.js 16**, **React 19**
 ## ✨ Features
 
 ### 🔐 Authentication & Authorization
+
 - JWT authentication with `httpOnly` cookies (via `jose`)
 - **10 role-based access control** roles: CEO, Manager, Developer, Designer, Marketer, HR, Sales, Intern, Accountant, Support
 - Join request approval system (CEO / Manager / HR can approve)
 - Password hashing with `bcryptjs`
 
 ### 📋 Task Management
+
 - Kanban-style task board with **6 status workflow**:
   - `TODO` → `ACCEPTED` → `IN_PROGRESS` → `READY` → `DONE`
   - `BLOCKED` status for paused tasks
@@ -28,11 +30,13 @@ A full-stack company management platform built with **Next.js 16**, **React 19**
 - Role-based status change permissions
 
 ### 💬 Real-time Messaging
+
 - Direct messaging between employees
 - Conversation list with unread message counts
 - Message history with timestamps and read status
 
 ### 💰 Salary Management
+
 - Salary records with bonus/deduction tracking
 - Interactive payment calendar with due date visualization
 - Mark as paid functionality
@@ -41,12 +45,14 @@ A full-stack company management platform built with **Next.js 16**, **React 19**
 - Role-based access (CEO, Manager, Accountant only)
 
 ### 👥 Employee Management
+
 - Add employees with role assignment
 - Employee profiles with contact information
 - Join request approval by CEO/Manager/HR
 - Employee search and role-based filtering
 
 ### 📊 Dashboard & Analytics
+
 - Real-time overview stats with animated counters and sparkline charts
 - Interactive charts: Salary Overview, Tasks by Status, Team Activity
 - Recent activity feed
@@ -57,19 +63,19 @@ A full-stack company management platform built with **Next.js 16**, **React 19**
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Next.js 16 (App Router) |
-| **UI** | React 19 + Tailwind CSS 4 |
-| **Language** | TypeScript 5 (strict mode) |
-| **ORM** | Prisma 7 |
-| **Database** | PostgreSQL 16 |
-| **Auth** | JWT (`jose`) + `bcryptjs` |
-| **Validation** | Zod 4 |
-| **Charts** | Recharts 3 |
-| **Icons** | Lucide React |
-| **Testing** | Jest + React Testing Library |
-| **Deployment** | Vercel / Docker |
+| Layer          | Technology                   |
+| -------------- | ---------------------------- |
+| **Framework**  | Next.js 16 (App Router)      |
+| **UI**         | React 19 + Tailwind CSS 4    |
+| **Language**   | TypeScript 5 (strict mode)   |
+| **ORM**        | Prisma 7                     |
+| **Database**   | PostgreSQL 16                |
+| **Auth**       | JWT (`jose`) + `bcryptjs`    |
+| **Validation** | Zod 4                        |
+| **Charts**     | Recharts 3                   |
+| **Icons**      | Lucide React                 |
+| **Testing**    | Jest + React Testing Library |
+| **Deployment** | Vercel / Docker              |
 
 ---
 
@@ -77,7 +83,7 @@ A full-stack company management platform built with **Next.js 16**, **React 19**
 
 ### Prerequisites
 
-- **Node.js** 18+
+- **Node.js** 22+ (Next.js 16 requirement)
 - **PostgreSQL** 16+
 - **npm** or **yarn**
 
@@ -159,9 +165,9 @@ nescom/
 │   │   └── __tests__/          # Component tests
 │   ├── contexts/               # React contexts (Auth)
 │   ├── hooks/                  # Custom hooks
-│   ├── lib/                    # Utilities (auth, rbac, validation)
+│   ├── lib/                    # Utilities (auth, rbac, validation, errors, security)
 │   │   └── __tests__/          # Unit tests
-│   ├── proxy.ts                # API proxy utilities
+│   ├── middleware.ts           # Edge middleware (auth, rate limiting, CSRF)
 │   └── types/                  # TypeScript types
 ├── tests/                      # API integration tests
 ├── docs/                       # Documentation (API, Database)
@@ -176,69 +182,77 @@ nescom/
 ## 📡 API Endpoints
 
 ### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
+
+| Method | Endpoint             | Description       |
+| ------ | -------------------- | ----------------- |
 | `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Login |
-| `POST` | `/api/auth/logout` | Logout |
+| `POST` | `/api/auth/login`    | Login             |
+| `POST` | `/api/auth/logout`   | Logout            |
 
 ### Users
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/users` | List all users (paginated) |
-| `GET` | `/api/users/me` | Get current user |
-| `POST` | `/api/users` | Create user (CEO/Manager/HR) |
-| `PUT` | `/api/users/[id]` | Update user |
-| `DELETE` | `/api/users/[id]` | Delete user (CEO/Manager/HR) |
-| `POST` | `/api/users/me/change-password` | Change password |
+
+| Method   | Endpoint                        | Description                  |
+| -------- | ------------------------------- | ---------------------------- |
+| `GET`    | `/api/users`                    | List all users (paginated)   |
+| `GET`    | `/api/users/me`                 | Get current user             |
+| `POST`   | `/api/users`                    | Create user (CEO/Manager/HR) |
+| `PUT`    | `/api/users/[id]`               | Update user                  |
+| `DELETE` | `/api/users/[id]`               | Delete user (CEO/Manager/HR) |
+| `POST`   | `/api/users/me/change-password` | Change password              |
 
 ### Tasks
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/tasks` | List tasks (paginated, filterable) |
-| `POST` | `/api/tasks` | Create task |
-| `GET` | `/api/tasks/[id]` | Get task |
-| `PUT` | `/api/tasks/[id]` | Update task |
-| `DELETE` | `/api/tasks/[id]` | Delete task |
+
+| Method   | Endpoint          | Description                        |
+| -------- | ----------------- | ---------------------------------- |
+| `GET`    | `/api/tasks`      | List tasks (paginated, filterable) |
+| `POST`   | `/api/tasks`      | Create task                        |
+| `GET`    | `/api/tasks/[id]` | Get task                           |
+| `PUT`    | `/api/tasks/[id]` | Update task                        |
+| `DELETE` | `/api/tasks/[id]` | Delete task                        |
 
 ### Messages
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/messages` | List messages (paginated) |
-| `POST` | `/api/messages` | Send message |
-| `GET` | `/api/messages/conversations` | List conversations |
+
+| Method | Endpoint                      | Description               |
+| ------ | ----------------------------- | ------------------------- |
+| `GET`  | `/api/messages`               | List messages (paginated) |
+| `POST` | `/api/messages`               | Send message              |
+| `GET`  | `/api/messages/conversations` | List conversations        |
 
 ### Salary
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/salary` | List salaries (paginated) |
-| `POST` | `/api/salary` | Create salary record |
-| `PUT` | `/api/salary/[id]` | Update salary |
-| `POST` | `/api/salary/pay/[id]` | Mark as paid |
+
+| Method | Endpoint               | Description               |
+| ------ | ---------------------- | ------------------------- |
+| `GET`  | `/api/salary`          | List salaries (paginated) |
+| `POST` | `/api/salary`          | Create salary record      |
+| `PUT`  | `/api/salary/[id]`     | Update salary             |
+| `POST` | `/api/salary/pay/[id]` | Mark as paid              |
 
 ### Companies
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/companies` | List companies |
-| `POST` | `/api/companies` | Create company |
-| `PUT` | `/api/companies` | Update company (CEO) |
+
+| Method | Endpoint         | Description          |
+| ------ | ---------------- | -------------------- |
+| `GET`  | `/api/companies` | List companies       |
+| `POST` | `/api/companies` | Create company       |
+| `PUT`  | `/api/companies` | Update company (CEO) |
 
 > 💡 All list endpoints support **pagination** via `?page=1&limit=50` query parameters. Response includes `{ pagination: { page, limit, total, pages } }`.
 
 ### Join Requests
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/join-requests` | List pending requests |
-| `POST` | `/api/join-requests` | Submit join request |
-| `PUT` | `/api/join-requests/[id]` | Approve/reject request |
+
+| Method | Endpoint                  | Description            |
+| ------ | ------------------------- | ---------------------- |
+| `GET`  | `/api/join-requests`      | List pending requests  |
+| `POST` | `/api/join-requests`      | Submit join request    |
+| `PUT`  | `/api/join-requests/[id]` | Approve/reject request |
 
 ### Other
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/notifications` | List notifications |
-| `PATCH` | `/api/notifications` | Mark as read |
-| `POST` | `/api/upload` | Upload file |
-| `GET` | `/api/health` | Health check |
+
+| Method  | Endpoint             | Description        |
+| ------- | -------------------- | ------------------ |
+| `GET`   | `/api/notifications` | List notifications |
+| `PATCH` | `/api/notifications` | Mark as read       |
+| `POST`  | `/api/upload`        | Upload file        |
+| `GET`   | `/api/health`        | Health check       |
 
 > 📖 Full API documentation: [docs/API.md](docs/API.md)
 
@@ -246,15 +260,31 @@ nescom/
 
 ## 🔑 Role Permissions
 
-| Feature | CEO | Manager | Developer | Designer | Marketer | HR | Sales | Support | Intern |
-|---------|:---:|:-------:|:---------:|:--------:|:--------:|:--:|:-----:|:-------:|:------:|
-| Manage Users | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Manage Tasks | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| View Salary | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Manage Salary | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Manage Company | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Review Join Requests | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Send Messages | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature              | CEO | Manager | Developer | Designer | Marketer | HR  | Sales | Support | Intern |
+| -------------------- | :-: | :-----: | :-------: | :------: | :------: | :-: | :---: | :-----: | :----: |
+| Manage Users         | ✅  |   ✅    |    ❌     |    ❌    |    ❌    | ✅  |  ❌   |   ❌    |   ❌   |
+| Manage Tasks         | ✅  |   ✅    |    ✅     |    ✅    |    ✅    | ✅  |  ✅   |   ✅    |   ❌   |
+| View Salary          | ✅  |   ✅    |    ❌     |    ❌    |    ❌    | ❌  |  ❌   |   ❌    |   ❌   |
+| Manage Salary        | ✅  |   ❌    |    ❌     |    ❌    |    ❌    | ❌  |  ❌   |   ❌    |   ❌   |
+| Manage Company       | ✅  |   ❌    |    ❌     |    ❌    |    ❌    | ❌  |  ❌   |   ❌    |   ❌   |
+| Review Join Requests | ✅  |   ✅    |    ❌     |    ❌    |    ❌    | ✅  |  ❌   |   ❌    |   ❌   |
+| Send Messages        | ✅  |   ✅    |    ✅     |    ✅    |    ✅    | ✅  |  ✅   |   ✅    |   ✅   |
+
+---
+
+## 🛡️ Security
+
+| Layer                  | Protection                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Authentication**     | JWT via `jose` (HS256), `httpOnly` cookies, 7-day expiry                                                   |
+| **Edge Middleware**    | `src/middleware.ts` — JWT verification, PENDING-user blocking, `x-user-id`/`x-company-id` header injection |
+| **Rate Limiting**      | 3 tiers: global (100/min), API (200/min per path), login brute-force (5 per 15 min per IP+email)           |
+| **CSRF**               | Origin/referer validation on all non-GET API requests                                                      |
+| **File Uploads**       | Extension whitelist, MIME validation, random `crypto.randomBytes` prefix, path-traversal guard             |
+| **Input Sanitization** | HTML-escaping via `sanitizeInput()`, Zod schema validation on every route                                  |
+| **Security Headers**   | CSP, HSTS, X-XSS-Protection, X-Frame-Options, X-Content-Type-Options, Referrer-Policy via `next.config.ts` |
+| **Prisma Security**    | Parameterized queries, no raw SQL injection surface                                                        |
+| **Secrets**            | All keys via environment variables; `.env`/`.env.local` gitignored; zero hardcoded credentials             |
 
 ---
 
@@ -273,6 +303,8 @@ npm run test:coverage
 # Run integration tests (requires database)
 npm run test:integration
 ```
+
+**Test coverage:** 14 suites / 180 unit + component tests across auth, security, errors, RBAC, roles, validation, utils, and UI components.
 
 ### Code Quality
 

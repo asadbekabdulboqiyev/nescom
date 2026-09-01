@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, Notification } from '@/types';
 
 const createNotificationSchema = z.object({
   userId: z.string().min(1),
@@ -10,11 +13,15 @@ const createNotificationSchema = z.object({
 });
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -34,40 +41,66 @@ export async function GET(request: Request) {
       where: { userId, companyId, read: false },
     });
 
-    return NextResponse.json(
-      { notifications, unreadCount },
+    const typedNotifications: Notification[] = notifications.map((n) => ({
+      id: n.id,
+      userId: n.userId,
+      title: n.title,
+      message: n.message,
+      type: n.type,
+      read: n.read,
+      companyId: n.companyId,
+      createdAt: n.createdAt.toISOString(),
+      link: n.link ?? null,
+    }));
+
+    logger.info('Notifications listed', {
+      method: 'GET',
+      path: '/api/notifications',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ notifications: Notification[]; unreadCount: number }>>(
+      { success: true, data: { notifications: typedNotifications, unreadCount } },
       {
         headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
       }
     );
   } catch (error) {
-    console.error('Get notifications error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get notifications error', {
+      method: 'GET',
+      path: '/api/notifications',
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role');
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const validation = createNotificationSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.issues[0].message },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
     const { userId: targetUserId, title, message, type } = validation.data;
 
     if (userRole !== 'CEO' && userRole !== 'MANAGER' && targetUserId !== userId) {
-      return NextResponse.json(
-        { error: 'You can only create notifications for yourself' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You can only create notifications for yourself' },
         { status: 403 }
       );
     }
@@ -76,19 +109,48 @@ export async function POST(request: Request) {
       data: { userId: targetUserId, companyId, title, message, type },
     });
 
-    return NextResponse.json({ notification }, { status: 201 });
+    const typedNotification: Notification = {
+      id: notification.id,
+      userId: notification.userId,
+      title: notification.title,
+      message: notification.message,
+      type: notification.type,
+      read: notification.read,
+      companyId: notification.companyId,
+      createdAt: notification.createdAt.toISOString(),
+      link: notification.link ?? null,
+    };
+
+    logger.info('Notification created', {
+      method: 'POST',
+      path: '/api/notifications',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ notification: Notification }>>(
+      { success: true, data: { notification: typedNotification } },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Create notification error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Create notification error', {
+      method: 'POST',
+      path: '/api/notifications',
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }
 
 export async function PATCH(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
@@ -99,7 +161,16 @@ export async function PATCH(request: Request) {
         where: { userId, companyId, read: false },
         data: { read: true },
       });
-      return NextResponse.json({ success: true });
+      logger.info('All notifications marked as read', {
+        method: 'PATCH',
+        path: '/api/notifications',
+        statusCode: 200,
+        duration: Date.now() - start,
+      });
+      return NextResponse.json<ApiResponse>(
+        { success: true, message: 'All notifications marked as read' },
+        { status: 200 }
+      );
     }
 
     if (action === 'read' && id) {
@@ -107,12 +178,28 @@ export async function PATCH(request: Request) {
         where: { id, userId, companyId },
         data: { read: true },
       });
-      return NextResponse.json({ success: true });
+      logger.info('Notification marked as read', {
+        method: 'PATCH',
+        path: '/api/notifications',
+        statusCode: 200,
+        duration: Date.now() - start,
+      });
+      return NextResponse.json<ApiResponse>(
+        { success: true, message: 'Notification marked as read' },
+        { status: 200 }
+      );
     }
 
-    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: 'Invalid action' },
+      { status: 400 }
+    );
   } catch (error) {
-    console.error('Update notifications error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Update notifications error', {
+      method: 'PATCH',
+      path: '/api/notifications',
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }

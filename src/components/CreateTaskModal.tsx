@@ -111,10 +111,7 @@ export function CreateTaskModal({ open, onClose, onTaskCreated }: CreateTaskModa
     <Modal open={open} onClose={onClose} title="Create New Task">
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div>
-          <label
-            htmlFor="task-title"
-            className="block text-sm font-medium text-slate-700 mb-1"
-          >
+          <label htmlFor="task-title" className="block text-sm font-medium text-slate-700 mb-1">
             Title *
           </label>
           <input
@@ -133,11 +130,7 @@ export function CreateTaskModal({ open, onClose, onTaskCreated }: CreateTaskModa
             placeholder="Enter task title"
           />
           {errors.title && (
-            <p
-              id="task-title-error"
-              role="alert"
-              className="mt-1 text-xs text-red-500"
-            >
+            <p id="task-title-error" role="alert" className="mt-1 text-xs text-red-500">
               {errors.title}
             </p>
           )}

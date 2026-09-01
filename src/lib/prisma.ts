@@ -7,9 +7,24 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient() {
   const adapter = new PrismaPg(process.env.DATABASE_URL!);
-  return new PrismaClient({ adapter });
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['query', 'warn', 'error'] : ['error'],
+  });
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
+function setupGracefulShutdown() {
+  const shutdown = async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  };
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+}
+
+setupGracefulShutdown();

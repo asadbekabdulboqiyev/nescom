@@ -44,10 +44,7 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
           <stop offset="100%" stopColor={color} stopOpacity={0.05} />
         </linearGradient>
       </defs>
-      <polygon
-        points={areaPoints}
-        fill={`url(#sparkline-${color.replace('#', '')})`}
-      />
+      <polygon points={areaPoints} fill={`url(#sparkline-${color.replace('#', '')})`} />
       <polyline
         points={points}
         fill="none"
@@ -197,7 +194,10 @@ export function StatsCard({
           'absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none',
           `bg-gradient-to-br ${gradientMap[gradient]}`
         )}
-        style={{ opacity: 0, background: `linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(99,102,241,0.03) 100%)` }}
+        style={{
+          opacity: 0,
+          background: `linear-gradient(135deg, rgba(59,130,246,0.03) 0%, rgba(99,102,241,0.03) 100%)`,
+        }}
       />
     </div>
   );

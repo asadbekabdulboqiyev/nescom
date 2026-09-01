@@ -95,7 +95,18 @@ describe('canViewSalary', () => {
 
 describe('canSendMessage', () => {
   it('should return true for all roles', () => {
-    const roles: Role[] = ['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT'];
+    const roles: Role[] = [
+      'CEO',
+      'MANAGER',
+      'DEVELOPER',
+      'DESIGNER',
+      'MARKETER',
+      'HR',
+      'SALES',
+      'INTERN',
+      'ACCOUNTANT',
+      'SUPPORT',
+    ];
     roles.forEach((role) => {
       expect(canSendMessage(role)).toBe(true);
     });

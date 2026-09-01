@@ -180,464 +180,451 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl animate-scale-in">
-      <div className="mb-6 text-center animate-fade-in">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-xl shadow-blue-500/25">
-          <span className="text-2xl font-bold text-white">N</span>
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900">
-          Create your account
-        </h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Get started with Nescom
-        </p>
-      </div>
+          <div className="mb-6 text-center animate-fade-in">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl gradient-primary shadow-xl shadow-blue-500/25">
+              <span className="text-2xl font-bold text-white">N</span>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900">Create your account</h2>
+            <p className="mt-1 text-sm text-slate-500">Get started with Nescom</p>
+          </div>
 
-      {/* Progress Indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
-                    currentStep > step.id
-                      ? 'bg-emerald-500 text-white'
-                      : currentStep === step.id
-                        ? 'gradient-primary text-white shadow-lg shadow-blue-500/25'
-                        : 'bg-slate-200 text-slate-500'
-                  }`}
-                >
-                  {currentStep > step.id ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    <step.icon className="h-5 w-5" />
+          {/* Progress Indicator */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              {steps.map((step, index) => (
+                <div key={step.id} className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
+                        currentStep > step.id
+                          ? 'bg-emerald-500 text-white'
+                          : currentStep === step.id
+                            ? 'gradient-primary text-white shadow-lg shadow-blue-500/25'
+                            : 'bg-slate-200 text-slate-500'
+                      }`}
+                    >
+                      {currentStep > step.id ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <step.icon className="h-5 w-5" />
+                      )}
+                    </div>
+                    <span
+                      className={`mt-2 text-xs font-medium transition-colors ${
+                        currentStep >= step.id ? 'text-slate-900' : 'text-slate-500'
+                      }`}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`mx-2 h-0.5 w-12 transition-colors sm:w-20 ${
+                        currentStep > step.id ? 'bg-emerald-500' : 'bg-slate-200'
+                      }`}
+                    />
                   )}
                 </div>
-                <span
-                  className={`mt-2 text-xs font-medium transition-colors ${
-                    currentStep >= step.id
-                      ? 'text-slate-900'
-                      : 'text-slate-500'
-                  }`}
-                >
-                  {step.label}
-                </span>
-              </div>
-              {index < steps.length - 1 && (
-                <div
-                  className={`mx-2 h-0.5 w-12 transition-colors sm:w-20 ${
-                    currentStep > step.id ? 'bg-emerald-500' : 'bg-slate-200'
-                  }`}
-                />
-              )}
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 animate-slide-in-up">
-          {error}
-        </div>
-      )}
+          {error && (
+            <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 animate-slide-in-up">
+              {error}
+            </div>
+          )}
 
-      {/* Step 1: Company Selection */}
-      {currentStep === 1 && (
-        <div className="space-y-4 animate-slide-in-up">
-          {!formData.createNew ? (
-            <>
-              {loadingCompanies ? (
-                <div className="flex items-center justify-center py-8">
-                  <svg
-                    className="h-6 w-6 animate-spin text-blue-500"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                </div>
-              ) : companies.length > 0 ? (
+          {/* Step 1: Company Selection */}
+          {currentStep === 1 && (
+            <div className="space-y-4 animate-slide-in-up">
+              {!formData.createNew ? (
                 <>
-                  <label className="block text-sm font-medium text-slate-700">
-                    Select your company
-                  </label>
-                  <div className="relative mb-3">
-                    <input
-                      type="text"
-                      value={formData.companyCode}
-                      onChange={(e) => {
-                        const code = e.target.value.toUpperCase();
-                        setFormData((prev) => ({ ...prev, companyCode: code }));
-                        // Auto-select if code matches
-                        const match = companies.find((c) => c.code === code);
-                        if (match) {
-                          updateField('selectedCompanyId', match.id);
-                        }
-                      }}
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Enter company code (e.g. MYCO001)"
-                    />
-                  </div>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {companies.map((company) => (
-                      <button
-                        key={company.id}
-                        type="button"
-                        onClick={() => updateField('selectedCompanyId', company.id)}
-                        className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 ${
-                          formData.selectedCompanyId === company.id
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
-                        }`}
+                  {loadingCompanies ? (
+                    <div className="flex items-center justify-center py-8">
+                      <svg
+                        className="h-6 w-6 animate-spin text-blue-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
                       >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
-                          <Building2 className="h-5 w-5 text-slate-500" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">
-                            {company.name}
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">{company.code}</span> · {company.industry || 'General'} · {company._count.users} member
-                            {company._count.users !== 1 ? 's' : ''}
-                          </p>
-                        </div>
-                        {formData.selectedCompanyId === company.id && (
-                          <Check className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  <FieldError field="selectedCompanyId" errors={errors} />
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                    </div>
+                  ) : companies.length > 0 ? (
+                    <>
+                      <label className="block text-sm font-medium text-slate-700">
+                        Select your company
+                      </label>
+                      <div className="relative mb-3">
+                        <input
+                          type="text"
+                          value={formData.companyCode}
+                          onChange={(e) => {
+                            const code = e.target.value.toUpperCase();
+                            setFormData((prev) => ({ ...prev, companyCode: code }));
+                            // Auto-select if code matches
+                            const match = companies.find((c) => c.code === code);
+                            if (match) {
+                              updateField('selectedCompanyId', match.id);
+                            }
+                          }}
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          placeholder="Enter company code (e.g. MYCO001)"
+                        />
+                      </div>
+                      <div className="space-y-2 max-h-60 overflow-y-auto">
+                        {companies.map((company) => (
+                          <button
+                            key={company.id}
+                            type="button"
+                            onClick={() => updateField('selectedCompanyId', company.id)}
+                            className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 ${
+                              formData.selectedCompanyId === company.id
+                                ? 'border-blue-500 bg-blue-50'
+                                : 'border-slate-200 bg-white hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100">
+                              <Building2 className="h-5 w-5 text-slate-500" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-slate-900 truncate">
+                                {company.name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">
+                                  {company.code}
+                                </span>{' '}
+                                · {company.industry || 'General'} · {company._count.users} member
+                                {company._count.users !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                            {formData.selectedCompanyId === company.id && (
+                              <Check className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      <FieldError field="selectedCompanyId" errors={errors} />
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Users className="mx-auto h-10 w-10 text-slate-400 mb-3" />
+                      <p className="text-sm text-slate-600 mb-1">No companies yet</p>
+                      <p className="text-xs text-slate-500">
+                        Create your first company to get started
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => updateField('createNew', true)}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 hover:border-blue-400 hover:text-blue-600 transition-all duration-200"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create new company
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!formData.selectedCompanyId}
+                    className="w-full flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300"
+                  >
+                    Continue
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
                 </>
               ) : (
-                <div className="text-center py-6">
-                  <Users className="mx-auto h-10 w-10 text-slate-400 mb-3" />
-                  <p className="text-sm text-slate-600 mb-1">
-                    No companies yet
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    Create your first company to get started
-                  </p>
-                </div>
+                <>
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-slate-700">New company</label>
+                    <button
+                      type="button"
+                      onClick={() => updateField('createNew', false)}
+                      className="text-xs text-blue-600 hover:text-blue-700"
+                    >
+                      Choose existing
+                    </button>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="companyName"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Company name
+                    </label>
+                    <div className="relative">
+                      <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                      <input
+                        id="companyName"
+                        type="text"
+                        required
+                        value={formData.companyName}
+                        onChange={(e) => updateField('companyName', e.target.value)}
+                        className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                          errors.companyName
+                            ? 'border-red-500 focus:border-red-500'
+                            : 'border-slate-300 focus:border-blue-500'
+                        }`}
+                        placeholder="Acme Inc."
+                      />
+                    </div>
+                    <FieldError field="companyName" errors={errors} />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="companyIndustry"
+                      className="mb-1.5 block text-sm font-medium text-slate-700"
+                    >
+                      Industry <span className="text-slate-400">(optional)</span>
+                    </label>
+                    <select
+                      id="companyIndustry"
+                      value={formData.companyIndustry}
+                      onChange={(e) => updateField('companyIndustry', e.target.value)}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                    >
+                      <option value="">Select industry</option>
+                      <option value="technology">Technology</option>
+                      <option value="finance">Finance</option>
+                      <option value="healthcare">Healthcare</option>
+                      <option value="education">Education</option>
+                      <option value="retail">Retail</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => updateField('createNew', false)}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all duration-200"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Back
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
+                    >
+                      Continue
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </>
               )}
+            </div>
+          )}
 
-              <button
-                type="button"
-                onClick={() => updateField('createNew', true)}
-                className="w-full flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 hover:border-blue-400 hover:text-blue-600 transition-all duration-200"
-              >
-                <Plus className="h-4 w-4" />
-                Create new company
-              </button>
-
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={!formData.selectedCompanyId}
-                className="w-full flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300"
-              >
-                Continue
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-slate-700">
-                  New company
-                </label>
-                <button
-                  type="button"
-                  onClick={() => updateField('createNew', false)}
-                  className="text-xs text-blue-600 hover:text-blue-700"
-                >
-                  Choose existing
-                </button>
-              </div>
-
+          {/* Step 2: Personal Info */}
+          {currentStep === 2 && (
+            <form onSubmit={handleSubmit} className="space-y-4 animate-slide-in-up">
               <div>
-                <label
-                  htmlFor="companyName"
-                  className="mb-1.5 block text-sm font-medium text-slate-700"
-                >
-                  Company name
+                <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Full name
                 </label>
                 <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
-                    id="companyName"
+                    id="name"
                     type="text"
                     required
-                    value={formData.companyName}
-                    onChange={(e) => updateField('companyName', e.target.value)}
+                    value={formData.name}
+                    onChange={(e) => updateField('name', e.target.value)}
                     className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                      errors.companyName
+                      errors.name
                         ? 'border-red-500 focus:border-red-500'
                         : 'border-slate-300 focus:border-blue-500'
                     }`}
-                    placeholder="Acme Inc."
+                    placeholder="John Doe"
                   />
                 </div>
-                <FieldError field="companyName" errors={errors} />
+                <FieldError field="name" errors={errors} />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">
+                  Email address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                      errors.email
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-300 focus:border-blue-500'
+                    }`}
+                    placeholder="you@company.com"
+                  />
+                </div>
+                <FieldError field="email" errors={errors} />
               </div>
 
               <div>
                 <label
-                  htmlFor="companyIndustry"
+                  htmlFor="password"
                   className="mb-1.5 block text-sm font-medium text-slate-700"
                 >
-                  Industry <span className="text-slate-400">(optional)</span>
+                  Password
                 </label>
-                <select
-                  id="companyIndustry"
-                  value={formData.companyIndustry}
-                  onChange={(e) => updateField('companyIndustry', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => updateField('password', e.target.value)}
+                    className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                      errors.password
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-300 focus:border-blue-500'
+                    }`}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <FieldError field="password" errors={errors} />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-1.5 block text-sm font-medium text-slate-700"
                 >
-                  <option value="">Select industry</option>
-                  <option value="technology">Technology</option>
-                  <option value="finance">Finance</option>
-                  <option value="healthcare">Healthcare</option>
-                  <option value="education">Education</option>
-                  <option value="retail">Retail</option>
-                  <option value="other">Other</option>
-                </select>
+                  Confirm password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) => updateField('confirmPassword', e.target.value)}
+                    className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
+                      errors.confirmPassword
+                        ? 'border-red-500 focus:border-red-500'
+                        : 'border-slate-300 focus:border-blue-500'
+                    }`}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <FieldError field="confirmPassword" errors={errors} />
               </div>
 
               <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => updateField('createNew', false)}
+                  onClick={handleBack}
                   className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all duration-200"
                 >
                   <ChevronLeft className="h-4 w-4" />
                   Back
                 </button>
                 <button
-                  type="button"
-                  onClick={handleNext}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300"
                 >
-                  Continue
-                  <ChevronRight className="h-4 w-4" />
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Creating...
+                    </span>
+                  ) : (
+                    <>
+                      Create account
+                      <Check className="h-4 w-4" />
+                    </>
+                  )}
                 </button>
               </div>
-            </>
+            </form>
           )}
-        </div>
-      )}
 
-      {/* Step 2: Personal Info */}
-      {currentStep === 2 && (
-        <form onSubmit={handleSubmit} className="space-y-4 animate-slide-in-up">
-          <div>
-            <label
-              htmlFor="name"
-              className="mb-1.5 block text-sm font-medium text-slate-700"
-            >
-              Full name
-            </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                id="name"
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => updateField('name', e.target.value)}
-                className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                  errors.name
-                    ? 'border-red-500 focus:border-red-500'
-                    : 'border-slate-300 focus:border-blue-500'
-                }`}
-                placeholder="John Doe"
-              />
-            </div>
-            <FieldError field="name" errors={errors} />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-slate-700"
-            >
-              Email address
-            </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                id="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => updateField('email', e.target.value)}
-                className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                  errors.email
-                    ? 'border-red-500 focus:border-red-500'
-                    : 'border-slate-300 focus:border-blue-500'
-                }`}
-                placeholder="you@company.com"
-              />
-            </div>
-            <FieldError field="email" errors={errors} />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                id="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={(e) => updateField('password', e.target.value)}
-                className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                  errors.password
-                    ? 'border-red-500 focus:border-red-500'
-                    : 'border-slate-300 focus:border-blue-500'
-                }`}
-                placeholder="••••••••"
-              />
-            </div>
-            <FieldError field="password" errors={errors} />
-          </div>
-
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="mb-1.5 block text-sm font-medium text-slate-700"
-            >
-              Confirm password
-            </label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                id="confirmPassword"
-                type="password"
-                required
-                value={formData.confirmPassword}
-                onChange={(e) => updateField('confirmPassword', e.target.value)}
-                className={`w-full rounded-lg border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 ${
-                  errors.confirmPassword
-                    ? 'border-red-500 focus:border-red-500'
-                    : 'border-slate-300 focus:border-blue-500'
-                }`}
-                placeholder="••••••••"
-              />
-            </div>
-            <FieldError field="confirmPassword" errors={errors} />
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={handleBack}
-              className="flex-1 flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all duration-200"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 flex items-center justify-center gap-2 rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 transition-all duration-300"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Creating...
-                </span>
-              ) : (
-                <>
-                  Create account
-                  <Check className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Step 3: Complete */}
-      {currentStep === 3 && (
-        <div className="text-center animate-scale-in">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-            <Check className="h-8 w-8 text-emerald-600" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-900">Account created!</h3>
-          <p className="mt-2 text-sm text-slate-500">
-            Welcome to Nescom. Your account has been successfully created.
-          </p>
-          
-          {createdCompany && (
-            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs text-slate-500 mb-1">Your Company</p>
-              <p className="text-sm font-semibold text-slate-900">{createdCompany.name}</p>
-              <div className="mt-2 flex items-center justify-center gap-2">
-                <span className="text-xs text-slate-500">Code:</span>
-                <span className="font-mono text-lg font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                  {createdCompany.code}
-                </span>
+          {/* Step 3: Complete */}
+          {currentStep === 3 && (
+            <div className="text-center animate-scale-in">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                <Check className="h-8 w-8 text-emerald-600" />
               </div>
-              <p className="mt-2 text-[11px] text-slate-400">
-                Share this code with employees so they can join
+              <h3 className="text-lg font-semibold text-slate-900">Account created!</h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Welcome to Nescom. Your account has been successfully created.
               </p>
+
+              {createdCompany && (
+                <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-xs text-slate-500 mb-1">Your Company</p>
+                  <p className="text-sm font-semibold text-slate-900">{createdCompany.name}</p>
+                  <div className="mt-2 flex items-center justify-center gap-2">
+                    <span className="text-xs text-slate-500">Code:</span>
+                    <span className="font-mono text-lg font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                      {createdCompany.code}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-400">
+                    Share this code with employees so they can join
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="mt-6 w-full rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
+              >
+                Go to dashboard
+              </button>
             </div>
           )}
 
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="mt-6 w-full rounded-lg gradient-primary py-2.5 text-sm font-medium text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
-          >
-            Go to dashboard
-          </button>
-        </div>
-      )}
-
-      {currentStep < 3 && (
-        <p className="mt-6 text-center text-sm text-slate-500 animate-fade-in">
-          Already have an account?{' '}
-          <Link
-            href="/login"
-            className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            Sign in
-          </Link>
-        </p>
-      )}
+          {currentStep < 3 && (
+            <p className="mt-6 text-center text-sm text-slate-500 animate-fade-in">
+              Already have an account?{' '}
+              <Link
+                href="/login"
+                className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                Sign in
+              </Link>
+            </p>
+          )}
         </div>
         <p className="mt-6 text-center text-xs text-slate-400">
           &copy; 2026 Nescom. All rights reserved.

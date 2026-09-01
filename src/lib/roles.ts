@@ -1,4 +1,15 @@
-export type Role = 'CEO' | 'MANAGER' | 'DEVELOPER' | 'DESIGNER' | 'MARKETER' | 'HR' | 'SALES' | 'INTERN' | 'ACCOUNTANT' | 'SUPPORT' | 'PENDING';
+export type Role =
+  | 'CEO'
+  | 'MANAGER'
+  | 'DEVELOPER'
+  | 'DESIGNER'
+  | 'MARKETER'
+  | 'HR'
+  | 'SALES'
+  | 'INTERN'
+  | 'ACCOUNTANT'
+  | 'SUPPORT'
+  | 'PENDING';
 
 export interface RoleConfig {
   label: string;
@@ -105,13 +116,7 @@ export const ROLES: Record<Role, RoleConfig> = {
     color: 'text-indigo-700',
     bgColor: 'bg-indigo-100',
     icon: 'Calculator',
-    permissions: [
-      'tasks:read',
-      'salary:read',
-      'salary:write',
-      'messages:read',
-      'messages:write',
-    ],
+    permissions: ['tasks:read', 'salary:read', 'salary:write', 'messages:read', 'messages:write'],
   },
   SUPPORT: {
     label: 'Support',
@@ -129,7 +134,19 @@ export const ROLES: Record<Role, RoleConfig> = {
   },
 };
 
-export const ALL_ROLES: Role[] = ['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT', 'PENDING'];
+export const ALL_ROLES: Role[] = [
+  'CEO',
+  'MANAGER',
+  'DEVELOPER',
+  'DESIGNER',
+  'MARKETER',
+  'HR',
+  'SALES',
+  'INTERN',
+  'ACCOUNTANT',
+  'SUPPORT',
+  'PENDING',
+];
 
 export function hasPermission(role: Role, permission: string): boolean {
   return ROLES[role]?.permissions.includes(permission) ?? false;

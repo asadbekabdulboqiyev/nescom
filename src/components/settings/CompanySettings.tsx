@@ -37,14 +37,21 @@ export function CompanySettings({
         <p className="text-sm text-slate-500 mt-1">Update your company information</p>
       </div>
       {loadingCompany ? (
-        <div className="flex items-center justify-center py-8" role="status" aria-label="Loading company data">
+        <div
+          className="flex items-center justify-center py-8"
+          role="status"
+          aria-label="Loading company data"
+        >
           <Loader2 className="h-6 w-6 animate-spin text-blue-600" aria-hidden="true" />
           <span className="sr-only">Loading...</span>
         </div>
       ) : (
         <div className="space-y-4 max-w-lg">
           <div>
-            <label htmlFor="company-code" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="company-code"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
+            >
               Company Code
             </label>
             <div className="flex items-center gap-2">
@@ -68,7 +75,10 @@ export function CompanySettings({
             </p>
           </div>
           <div>
-            <label htmlFor="company-name" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="company-name"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
+            >
               Company Name
             </label>
             <input
@@ -81,7 +91,10 @@ export function CompanySettings({
             />
           </div>
           <div>
-            <label htmlFor="company-industry" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="company-industry"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
+            >
               Industry
             </label>
             <select
@@ -100,7 +113,10 @@ export function CompanySettings({
             </select>
           </div>
           <div>
-            <label htmlFor="company-description" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="company-description"
+              className="block text-sm font-medium text-slate-700 mb-1.5"
+            >
               Description
             </label>
             <textarea

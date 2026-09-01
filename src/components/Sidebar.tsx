@@ -15,7 +15,7 @@ import {
   LogOut,
   UserPlus,
 } from 'lucide-react';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
@@ -24,7 +24,12 @@ const navItems = [
   { href: '/tasks', label: 'Tasks', icon: CheckSquare },
   { href: '/messages', label: 'Messages', icon: MessageCircle },
   { href: '/salary', label: 'Salary', icon: DollarSign },
-  { href: '/join-requests', label: 'Join Requests', icon: UserPlus, roles: ['CEO', 'MANAGER', 'HR'] },
+  {
+    href: '/join-requests',
+    label: 'Join Requests',
+    icon: UserPlus,
+    roles: ['CEO', 'MANAGER', 'HR'] as string[],
+  },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -38,6 +43,23 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onMobileClose?.();
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [mobileOpen, onMobileClose]);
 
   const initials = user?.name
     ? user.name
@@ -82,17 +104,24 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     }
   }, []);
 
+  const isParentActive = (href: string) => {
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname.startsWith(href);
+  };
+
   const sidebarContent = (
     <>
       <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl gradient-primary shadow-lg shadow-blue-500/25">
-          <span className="text-base font-bold text-white" aria-hidden="true">N</span>
+          <span className="text-base font-bold text-white" aria-hidden="true">
+            N
+          </span>
         </div>
         {!collapsed && (
           <div className="animate-fade-in">
             <span className="text-lg font-bold text-slate-900">Nescom</span>
             {user?.companyId && (
-              <p className="text-[10px] font-mono text-slate-400 mt-0.5">
+              <p className="mt-0.5 font-mono text-[10px] text-slate-400">
                 ID: {user.companyId.slice(0, 8)}...
               </p>
             )}
@@ -101,7 +130,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         <button
           onClick={() => setCollapsed(!collapsed)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="ml-auto rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all duration-200 hidden lg:flex"
+          className="ml-auto hidden rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-slate-600 lg:flex"
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -115,12 +144,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         ref={navRef}
         role="navigation"
         aria-label="Main navigation"
-        className="flex-1 space-y-1 p-3 overflow-y-auto"
+        className="flex-1 space-y-1 overflow-y-auto p-3"
         onKeyDown={handleNavKeyDown}
       >
         {navItems.map((item, index) => {
           if (item.roles && user?.role && !item.roles.includes(user.role)) return null;
-          const isActive = pathname.startsWith(item.href);
+          const isActive = isParentActive(item.href);
           return (
             <Link
               key={item.href}
@@ -128,10 +157,10 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               onClick={onMobileClose}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-blue-50 text-blue-600 sidebar-active-indicator'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:scale-[1.02]'
+                  : 'text-slate-600 hover:scale-[1.02] hover:bg-slate-50 hover:text-slate-900'
               )}
               title={collapsed ? item.label : undefined}
               style={{ animationDelay: `${index * 50}ms` }}
@@ -163,18 +192,16 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             {initials}
           </div>
           {!collapsed && (
-            <div className="flex-1 min-w-0 animate-fade-in">
-              <p className="text-sm font-medium text-slate-900 truncate">
-                {user?.name || 'User'}
-              </p>
-              <p className="text-xs text-slate-500 truncate">{roleLabel}</p>
+            <div className="min-w-0 flex-1 animate-fade-in">
+              <p className="truncate text-sm font-medium text-slate-900">{user?.name || 'User'}</p>
+              <p className="truncate text-xs text-slate-500">{roleLabel}</p>
             </div>
           )}
           {!collapsed && (
             <button
               onClick={handleLogout}
               aria-label="Sign out"
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-red-500 transition-all duration-200"
+              className="rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-slate-100 hover:text-red-500"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -190,9 +217,8 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       <aside
         aria-label="Sidebar"
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex flex-col border-r border-slate-200 bg-white transition-all duration-300',
-          collapsed ? 'w-[68px]' : 'w-64',
-          'hidden lg:flex'
+          'fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-white transition-all duration-300 lg:flex',
+          collapsed ? 'w-[68px]' : 'w-64'
         )}
       >
         {sidebarContent}
@@ -211,7 +237,23 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             onClick={onMobileClose}
             aria-hidden="true"
           />
-          <aside className="fixed inset-y-0 left-0 w-64 bg-white shadow-2xl animate-slide-in-left">
+          <aside className="fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white shadow-2xl animate-slide-in-left">
+            <button
+              onClick={onMobileClose}
+              aria-label="Close navigation menu"
+              className="absolute right-3 top-4 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 lg:hidden"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             {sidebarContent}
           </aside>
         </div>

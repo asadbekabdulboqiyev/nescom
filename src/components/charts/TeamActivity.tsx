@@ -28,9 +28,7 @@ export function TeamActivity({ data }: { data: ActivityData[] }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Team Activity</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Tasks and messages over time
-          </p>
+          <p className="text-xs text-slate-500 mt-0.5">Tasks and messages over time</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
@@ -39,7 +37,9 @@ export function TeamActivity({ data }: { data: ActivityData[] }) {
           </div>
           <div className="h-8 w-px bg-slate-200" />
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Messages</p>
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+              Messages
+            </p>
             <p className="text-sm font-bold text-emerald-600">{totalMessages}</p>
           </div>
         </div>
@@ -78,9 +78,7 @@ export function TeamActivity({ data }: { data: ActivityData[] }) {
           <Legend
             iconType="circle"
             iconSize={8}
-            formatter={(value: string) => (
-              <span className="text-xs text-slate-600">{value}</span>
-            )}
+            formatter={(value: string) => <span className="text-xs text-slate-600">{value}</span>}
           />
           <Area
             type="monotone"

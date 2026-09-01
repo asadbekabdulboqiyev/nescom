@@ -36,7 +36,10 @@ export function SecuritySettings({
       </div>
       <div className="space-y-4 max-w-lg">
         <div>
-          <label htmlFor="current-password" className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label
+            htmlFor="current-password"
+            className="block text-sm font-medium text-slate-700 mb-1.5"
+          >
             Current Password
           </label>
           <input
@@ -62,7 +65,10 @@ export function SecuritySettings({
           />
         </div>
         <div>
-          <label htmlFor="confirm-password" className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label
+            htmlFor="confirm-password"
+            className="block text-sm font-medium text-slate-700 mb-1.5"
+          >
             Confirm New Password
           </label>
           <input

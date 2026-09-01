@@ -87,9 +87,7 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome back</h2>
-          <p className="text-sm text-slate-500 mb-8">
-            Sign in to your account to continue
-          </p>
+          <p className="text-sm text-slate-500 mb-8">Sign in to your account to continue</p>
 
           {noUsers === true && (
             <div className="mb-4 p-4 rounded-lg bg-blue-50 border border-blue-200">
@@ -128,13 +126,8 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <button
-                  type="button"
-                  className="text-xs text-blue-600 hover:text-blue-700"
-                >
+                <label className="text-sm font-medium text-slate-700">Password</label>
+                <button type="button" className="text-xs text-blue-600 hover:text-blue-700">
                   Forgot password?
                 </button>
               </div>
@@ -159,9 +152,7 @@ export default function LoginPage() {
 
             <label className="flex items-center gap-2">
               <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-blue-600" />
-              <span className="text-sm text-slate-600">
-                Remember me for 30 days
-              </span>
+              <span className="text-sm text-slate-600">Remember me for 30 days</span>
             </label>
 
             <button
@@ -182,10 +173,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-slate-500">
             Don&apos;t have an account?{' '}
-            <Link
-              href="/register"
-              className="font-semibold text-blue-600 hover:text-blue-700"
-            >
+            <Link href="/register" className="font-semibold text-blue-600 hover:text-blue-700">
               Create account
             </Link>
           </p>

@@ -30,13 +30,22 @@ describe('ROLES', () => {
 
   it('CEO should have all permissions', () => {
     const allPermissions = [
-      'employees:read', 'employees:write', 'employees:delete',
-      'tasks:read', 'tasks:write', 'tasks:delete', 'tasks:assign',
-      'salary:read', 'salary:write',
-      'messages:read', 'messages:write',
-      'settings:read', 'settings:write',
+      'employees:read',
+      'employees:write',
+      'employees:delete',
+      'tasks:read',
+      'tasks:write',
+      'tasks:delete',
+      'tasks:assign',
+      'salary:read',
+      'salary:write',
+      'messages:read',
+      'messages:write',
+      'settings:read',
+      'settings:write',
       'company:manage',
-      'join-requests:read', 'join-requests:approve',
+      'join-requests:read',
+      'join-requests:approve',
     ];
     allPermissions.forEach((perm) => {
       expect(ROLES.CEO.permissions).toContain(perm);
@@ -50,7 +59,19 @@ describe('ALL_ROLES', () => {
   });
 
   it('should include all role keys', () => {
-    const expected: Role[] = ['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT', 'PENDING'];
+    const expected: Role[] = [
+      'CEO',
+      'MANAGER',
+      'DEVELOPER',
+      'DESIGNER',
+      'MARKETER',
+      'HR',
+      'SALES',
+      'INTERN',
+      'ACCOUNTANT',
+      'SUPPORT',
+      'PENDING',
+    ];
     expected.forEach((role) => {
       expect(ALL_ROLES).toContain(role);
     });

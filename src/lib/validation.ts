@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 export const registerSchema = z.object({
   email: z.string().email('Invalid email format'),
-  password: z.string().min(8, 'Password must be at least 8 characters')
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
@@ -51,7 +53,20 @@ export const updateUserSchema = z.object({
   phone: z.string().optional(),
   avatar: z.string().optional(),
   salary: z.number().positive().optional(),
-  role: z.enum(['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT']).optional(),
+  role: z
+    .enum([
+      'CEO',
+      'MANAGER',
+      'DEVELOPER',
+      'DESIGNER',
+      'MARKETER',
+      'HR',
+      'SALES',
+      'INTERN',
+      'ACCOUNTANT',
+      'SUPPORT',
+    ])
+    .optional(),
   email: z.string().email().optional(),
   salaryDueDate: z.string().optional(),
   startDate: z.string().optional(),
@@ -61,7 +76,18 @@ export const updateUserSchema = z.object({
 export const createUserSchema = z.object({
   email: z.string().email('Invalid email format'),
   name: z.string().min(1, 'Name is required'),
-  role: z.enum(['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT']),
+  role: z.enum([
+    'CEO',
+    'MANAGER',
+    'DEVELOPER',
+    'DESIGNER',
+    'MARKETER',
+    'HR',
+    'SALES',
+    'INTERN',
+    'ACCOUNTANT',
+    'SUPPORT',
+  ]),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phone: z.string().optional(),
   salary: z.number().positive().optional(),
@@ -76,7 +102,20 @@ export const createJoinRequestSchema = z.object({
 
 export const reviewJoinRequestSchema = z.object({
   status: z.enum(['APPROVED', 'REJECTED']),
-  role: z.enum(['CEO', 'MANAGER', 'DEVELOPER', 'DESIGNER', 'MARKETER', 'HR', 'SALES', 'INTERN', 'ACCOUNTANT', 'SUPPORT']).optional(),
+  role: z
+    .enum([
+      'CEO',
+      'MANAGER',
+      'DEVELOPER',
+      'DESIGNER',
+      'MARKETER',
+      'HR',
+      'SALES',
+      'INTERN',
+      'ACCOUNTANT',
+      'SUPPORT',
+    ])
+    .optional(),
 });
 
 export function validateRequest<T>(

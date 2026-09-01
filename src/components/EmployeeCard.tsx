@@ -87,9 +87,7 @@ export function EmployeeCard({
               {name}
             </Link>
             <p className="text-sm text-slate-500">{role}</p>
-            {department && (
-              <p className="text-xs text-slate-400">{department}</p>
-            )}
+            {department && <p className="text-xs text-slate-400">{department}</p>}
           </div>
         </div>
         <div ref={menuRef} className="relative">
@@ -165,9 +163,7 @@ export function EmployeeCard({
 
       <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-100">
         {salary != null && (
-          <span className="text-sm font-semibold text-slate-900">
-            ${salary.toLocaleString()}
-          </span>
+          <span className="text-sm font-semibold text-slate-900">${salary.toLocaleString()}</span>
         )}
         <Badge variant={statusVariant[status as keyof typeof statusVariant] || 'default'}>
           {status}

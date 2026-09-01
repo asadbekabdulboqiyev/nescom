@@ -3,12 +3,19 @@ import { prisma } from '@/lib/prisma';
 import { createTaskSchema, validateRequest } from '@/lib/validation';
 import { canManageTasks } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, PaginatedResponse, Task } from '@/types';
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -38,31 +45,64 @@ export async function GET(request: Request) {
       prisma.task.count({ where }),
     ]);
 
-    return NextResponse.json(
-      { tasks, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
-      {
-        headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
-      }
-    );
+    const typedTasks: Task[] = tasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description ?? null,
+      status: t.status,
+      priority: t.priority,
+      assigneeId: t.assigneeId ?? null,
+      creatorId: t.creatorId,
+      companyId: t.companyId,
+      createdAt: t.createdAt.toISOString(),
+      dueDate: t.dueDate?.toISOString() ?? null,
+      tags: t.tags,
+      assignee: t.assignee
+        ? { id: t.assignee.id, name: t.assignee.name, avatar: t.assignee.avatar ?? null }
+        : undefined,
+      creator: t.creator
+        ? { id: t.creator.id, name: t.creator.name, avatar: t.creator.avatar ?? null }
+        : undefined,
+    }));
+
+    const response: PaginatedResponse<Task> = {
+      success: true,
+      data: typedTasks,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    };
+
+    logger.info('Tasks listed', {
+      method: 'GET',
+      path: '/api/tasks',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json(response, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+    });
   } catch (error) {
-    console.error('Get tasks error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get tasks error', { method: 'GET', path: '/api/tasks', cause: error });
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canManageTasks(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to create tasks' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to create tasks' },
         { status: 403 }
       );
     }
@@ -71,7 +111,10 @@ export async function POST(request: Request) {
     const validation = validateRequest(createTaskSchema, body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
     }
 
     const { title, description, priority, dueDate, assigneeId } = validation.data;
@@ -93,9 +136,38 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ task }, { status: 201 });
+    const typedTask: Task = {
+      id: task.id,
+      title: task.title,
+      description: task.description ?? null,
+      status: task.status,
+      priority: task.priority,
+      assigneeId: task.assigneeId ?? null,
+      creatorId: task.creatorId,
+      companyId: task.companyId,
+      createdAt: task.createdAt.toISOString(),
+      dueDate: task.dueDate?.toISOString() ?? null,
+      tags: task.tags,
+      assignee: task.assignee
+        ? { id: task.assignee.id, name: task.assignee.name, avatar: task.assignee.avatar ?? null }
+        : undefined,
+      creator: task.creator
+        ? { id: task.creator.id, name: task.creator.name, avatar: task.creator.avatar ?? null }
+        : undefined,
+    };
+
+    logger.info('Task created', {
+      method: 'POST',
+      path: '/api/tasks',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ task: Task }>>(
+      { success: true, data: { task: typedTask } },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Create task error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Create task error', { method: 'POST', path: '/api/tasks', cause: error });
+    return handleApiError(error);
   }
 }

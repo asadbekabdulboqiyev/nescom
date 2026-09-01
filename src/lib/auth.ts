@@ -1,29 +1,32 @@
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify, type JWTPayload } from 'jose';
 import { cookies } from 'next/headers';
 
-function getJwtSecret(): string {
+function getJwtSecret(): Uint8Array {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET environment variable is required');
   }
-  return secret;
+  return new TextEncoder().encode(secret);
 }
 
-const JWT_SECRET = getJwtSecret();
-
-export interface JwtPayload {
+export interface JwtPayload extends JWTPayload {
   userId: string;
   email: string;
   companyId: string;
   role: string;
 }
 
-export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+export async function signToken(payload: JwtPayload): Promise<string> {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(getJwtSecret());
 }
 
-export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+export async function verifyToken(token: string): Promise<JwtPayload> {
+  const { payload } = await jwtVerify(token, getJwtSecret());
+  return payload as JwtPayload;
 }
 
 export async function getTokenFromHeaders(): Promise<string | null> {
@@ -39,7 +42,7 @@ export async function getCurrentUser(): Promise<JwtPayload | null> {
   if (!token) return null;
 
   try {
-    return verifyToken(token);
+    return await verifyToken(token);
   } catch {
     return null;
   }

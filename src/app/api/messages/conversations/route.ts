@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse } from '@/types';
+
+interface Conversation {
+  user: { id: string; name: string; avatar: string | null };
+  lastMessage: string;
+  lastMessageAt: Date;
+  unread: number;
+}
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    // Get all users in the company except current user
     const allUsers = await prisma.user.findMany({
       where: {
         companyId,
@@ -22,7 +35,6 @@ export async function GET(request: Request) {
       },
     });
 
-    // Get all messages for this user
     const messages = await prisma.message.findMany({
       where: {
         companyId,
@@ -35,16 +47,7 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Build conversation map from messages
-    const conversationMap = new Map<
-      string,
-      {
-        user: { id: string; name: string; avatar: string | null };
-        lastMessage: string;
-        lastMessageAt: Date;
-        unread: number;
-      }
-    >();
+    const conversationMap = new Map<string, Conversation>();
 
     for (const msg of messages) {
       const otherUser: { id: string; name: string; avatar: string | null } =
@@ -64,7 +67,6 @@ export async function GET(request: Request) {
       }
     }
 
-    // Add users without conversations
     for (const user of allUsers) {
       if (!conversationMap.has(user.id)) {
         conversationMap.set(user.id, {
@@ -80,9 +82,22 @@ export async function GET(request: Request) {
       (a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime()
     );
 
-    return NextResponse.json({ conversations });
+    logger.info('Conversations listed', {
+      method: 'GET',
+      path: '/api/messages/conversations',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ conversations: Conversation[] }>>({
+      success: true,
+      data: { conversations },
+    });
   } catch (error) {
-    console.error('Get conversations error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get conversations error', {
+      method: 'GET',
+      path: '/api/messages/conversations',
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }

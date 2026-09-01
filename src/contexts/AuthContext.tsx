@@ -79,7 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Check if user is PENDING
     if (data.user.role === 'PENDING') {
-      throw new Error('Your account is pending approval. Please wait for the company admin to approve your request.');
+      throw new Error(
+        'Your account is pending approval. Please wait for the company admin to approve your request.'
+      );
     }
 
     setToken(data.token);

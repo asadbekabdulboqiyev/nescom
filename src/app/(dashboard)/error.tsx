@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home, LayoutDashboard, Mail } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardError({
@@ -16,32 +16,48 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="text-center">
+    <div className="flex min-h-[60vh] items-center justify-center p-6" role="alert">
+      <div className="w-full max-w-md text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-          <AlertTriangle className="h-8 w-8 text-red-600" />
+          <AlertTriangle className="h-8 w-8 text-red-600" aria-hidden="true" />
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-slate-900">
+        <h2 className="mb-2 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
+          <LayoutDashboard className="h-5 w-5 text-slate-400" aria-hidden="true" />
           Dashboard Error
         </h2>
         <p className="mb-6 max-w-md text-sm text-slate-500">
-          Failed to load dashboard data. Please try again.
+          Failed to load your dashboard overview. Please try again. If the problem persists, contact
+          support.
         </p>
-        <div className="flex items-center justify-center gap-3">
+        {error?.digest && (
+          <p className="mb-6 rounded-lg bg-slate-100 px-3 py-2 font-mono text-xs text-slate-500">
+            Error ID: {error.digest}
+          </p>
+        )}
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
             onClick={reset}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 sm:w-auto"
           >
-            <RefreshCw className="h-4 w-4" />
-            Retry
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            Try Again
           </button>
           <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            href="/dashboard"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 sm:w-auto"
           >
-            <Home className="h-4 w-4" />
+            <Home className="h-4 w-4" aria-hidden="true" />
             Home
           </Link>
+        </div>
+        <div className="mt-8 border-t border-slate-100 pt-6">
+          <a
+            href="mailto:support@nescom.example.com"
+            className="inline-flex items-center gap-2 text-xs font-medium text-blue-600 transition-colors hover:text-blue-700"
+          >
+            <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+            Contact support
+          </a>
         </div>
       </div>
     </div>

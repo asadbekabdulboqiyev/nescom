@@ -80,9 +80,7 @@ export default function JoinRequestsPage() {
         const data = await res.json();
         throw new Error(data.error || 'Failed to review request');
       }
-      setRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status } : r))
-      );
+      setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to review request');
     } finally {
@@ -110,9 +108,7 @@ export default function JoinRequestsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Join Requests</h1>
-          <p className="text-sm text-slate-500">
-            Review and manage employee join requests
-          </p>
+          <p className="text-sm text-slate-500">Review and manage employee join requests</p>
         </div>
         <Button variant="ghost" onClick={fetchRequests} disabled={loading}>
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -229,7 +225,9 @@ export default function JoinRequestsPage() {
                       <div className="flex gap-2">
                         <Button
                           onClick={() => {
-                            const select = document.getElementById(`role-${request.id}`) as HTMLSelectElement;
+                            const select = document.getElementById(
+                              `role-${request.id}`
+                            ) as HTMLSelectElement;
                             handleReview(request.id, 'APPROVED', select?.value);
                           }}
                           disabled={processingId === request.id}

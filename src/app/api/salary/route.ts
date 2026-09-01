@@ -4,28 +4,44 @@ import { createSalarySchema, validateRequest } from '@/lib/validation';
 import { canManageSalary, canViewSalary } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
 import { toNumber } from '@/lib/utils';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, PaginatedResponse, Salary } from '@/types';
 
-function serializeSalary(salary: Record<string, unknown>) {
+function serializeSalary(s: Record<string, unknown>): Salary {
+  const dueDate = s.dueDate as Date;
+  const paidAt = s.paidAt as Date | null | undefined;
+  const user = s.user as { id: string; name: string; avatar: string | null } | undefined;
   return {
-    ...salary,
-    amount: toNumber(salary.amount),
-    bonus: toNumber(salary.bonus),
-    deductions: toNumber(salary.deductions),
+    id: s.id as string,
+    userId: s.userId as string,
+    amount: toNumber(s.amount),
+    bonus: toNumber(s.bonus),
+    deductions: toNumber(s.deductions),
+    status: s.status as string,
+    dueDate: dueDate.toISOString(),
+    paidAt: paidAt?.toISOString() ?? null,
+    companyId: s.companyId as string,
+    user: user ? { id: user.id, name: user.name, avatar: user.avatar ?? null } : undefined,
   };
 }
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canViewSalary(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to view salary data' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to view salary data' },
         { status: 403 }
       );
     }
@@ -54,38 +70,59 @@ export async function GET(request: Request) {
       prisma.salary.count({ where }),
     ]);
 
-    const serialized = salaries.map((s) => serializeSalary(s as Record<string, unknown>));
-
-    return NextResponse.json(
-      { salaries: serialized, pagination: { page, limit, total, pages: Math.ceil(total / limit) } },
-      {
-        headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
-      }
+    const serialized = salaries.map((s) =>
+      serializeSalary(s as unknown as Record<string, unknown>)
     );
+
+    const response: PaginatedResponse<Salary> = {
+      success: true,
+      data: serialized,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    };
+
+    logger.info('Salaries listed', {
+      method: 'GET',
+      path: '/api/salary',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json(response, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+    });
   } catch (error) {
-    console.error('Get salaries error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get salaries error', { method: 'GET', path: '/api/salary', cause: error });
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canManageSalary(userRole)) {
-      return NextResponse.json({ error: 'You do not have permission to create salary records' }, { status: 403 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to create salary records' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
     const validation = validateRequest(createSalarySchema, body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
     }
 
     const { userId, amount, dueDate, bonus, deductions } = validation.data;
@@ -104,9 +141,21 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ salary: serializeSalary(salary as Record<string, unknown>) }, { status: 201 });
+    logger.info('Salary created', {
+      method: 'POST',
+      path: '/api/salary',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ salary: Salary }>>(
+      {
+        success: true,
+        data: { salary: serializeSalary(salary as unknown as Record<string, unknown>) },
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Create salary error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Create salary error', { method: 'POST', path: '/api/salary', cause: error });
+    return handleApiError(error);
   }
 }

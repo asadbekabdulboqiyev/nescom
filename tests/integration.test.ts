@@ -186,8 +186,6 @@ describe('Unique Constraints', () => {
   it('should reject duplicate company code', async () => {
     const code = `DUP-${Date.now()}`;
     await prisma.company.create({ data: { name: 'First', code } });
-    await expect(
-      prisma.company.create({ data: { name: 'Second', code } })
-    ).rejects.toThrow();
+    await expect(prisma.company.create({ data: { name: 'Second', code } })).rejects.toThrow();
   });
 });

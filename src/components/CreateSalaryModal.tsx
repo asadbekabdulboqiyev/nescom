@@ -71,7 +71,8 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
     if (!form.amount || parseFloat(form.amount) <= 0) newErrors.amount = 'Amount must be positive';
     if (!form.dueDate) newErrors.dueDate = 'Due date is required';
     if (form.bonus && parseFloat(form.bonus) < 0) newErrors.bonus = 'Bonus must be non-negative';
-    if (form.deductions && parseFloat(form.deductions) < 0) newErrors.deductions = 'Deductions must be non-negative';
+    if (form.deductions && parseFloat(form.deductions) < 0)
+      newErrors.deductions = 'Deductions must be non-negative';
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -125,7 +126,10 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
         )}
 
         <div>
-          <label htmlFor="salary-employee" className="block text-sm font-medium text-slate-700 mb-1">
+          <label
+            htmlFor="salary-employee"
+            className="block text-sm font-medium text-slate-700 mb-1"
+          >
             Employee *
           </label>
           {loadingEmployees ? (
@@ -166,7 +170,10 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="salary-amount" className="block text-sm font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="salary-amount"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
               Amount *
             </label>
             <input
@@ -193,7 +200,10 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
             )}
           </div>
           <div>
-            <label htmlFor="salary-due-date" className="block text-sm font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="salary-due-date"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
               Due Date *
             </label>
             <input
@@ -245,7 +255,10 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
             )}
           </div>
           <div>
-            <label htmlFor="salary-deductions" className="block text-sm font-medium text-slate-700 mb-1">
+            <label
+              htmlFor="salary-deductions"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
               Deductions
             </label>
             <input
@@ -275,7 +288,11 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
           <Button variant="ghost" type="button" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" loading={creating} disabled={!form.userId || !form.amount || !form.dueDate}>
+          <Button
+            type="submit"
+            loading={creating}
+            disabled={!form.userId || !form.amount || !form.dueDate}
+          >
             Create Salary
           </Button>
         </div>

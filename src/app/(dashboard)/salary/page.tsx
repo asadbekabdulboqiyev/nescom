@@ -212,9 +212,7 @@ export default function SalaryPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Salary Management</h1>
-          <p className="text-sm text-slate-500">
-            Manage employee payments and compensation
-          </p>
+          <p className="text-sm text-slate-500">Manage employee payments and compensation</p>
         </div>
         {canManage && (
           <button
@@ -286,9 +284,7 @@ export default function SalaryPage() {
       {salaryData.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center animate-fade-in">
           <Receipt className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">
-            No salary records yet
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">No salary records yet</h2>
           <p className="text-sm text-slate-500 max-w-sm mx-auto mb-6">
             Salary records will appear here once you create them for your employees.
           </p>
@@ -316,7 +312,8 @@ export default function SalaryPage() {
                   2
                 </span>
                 <p className="text-sm text-slate-600">
-                  Create salary records for each employee with their base salary, bonus, and deductions.
+                  Create salary records for each employee with their base salary, bonus, and
+                  deductions.
                 </p>
               </div>
               <div className="flex items-start gap-3">
@@ -324,7 +321,8 @@ export default function SalaryPage() {
                   3
                 </span>
                 <p className="text-sm text-slate-600">
-                  Mark payments as paid when transactions are completed. Export reports as CSV anytime.
+                  Mark payments as paid when transactions are completed. Export reports as CSV
+                  anytime.
                 </p>
               </div>
             </div>
@@ -372,9 +370,7 @@ export default function SalaryPage() {
                 {f.label}
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                    filter === f.key
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-200 text-slate-600'
+                    filter === f.key ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-600'
                   }`}
                 >
                   {f.count}

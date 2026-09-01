@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/Button';
 import { ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
-/* using plain <a> tags for compatibility */
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,12 +58,8 @@ export default function NewEmployeeForm() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="rounded-xl border border-slate-200 bg-white p-12 text-center shadow-sm animate-fade-in">
           <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-emerald-500" />
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">
-            Employee Created!
-          </h2>
-          <p className="text-sm text-slate-500">
-            Redirecting to employees list...
-          </p>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">Employee Created!</h2>
+          <p className="text-sm text-slate-500">Redirecting to employees list...</p>
         </div>
       </div>
     );
@@ -72,12 +68,9 @@ export default function NewEmployeeForm() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-4">
-        <a
-          href="/employees"
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
-        >
+        <Link href="/employees" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100">
           <ArrowLeft className="h-5 w-5" />
-        </a>
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Add Employee</h1>
           <p className="text-sm text-slate-500">Invite a new team member</p>
@@ -88,17 +81,11 @@ export default function NewEmployeeForm() {
         onSubmit={handleSubmit}
         className="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
-        {error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
+        {error && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Full Name
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Full Name</label>
             <input
               type="text"
               required
@@ -109,9 +96,7 @@ export default function NewEmployeeForm() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Email
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
             <input
               type="email"
               required
@@ -125,9 +110,7 @@ export default function NewEmployeeForm() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Password
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
             <input
               type="password"
               required
@@ -139,9 +122,7 @@ export default function NewEmployeeForm() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Role
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Role</label>
             <select
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -158,9 +139,7 @@ export default function NewEmployeeForm() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Phone
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Phone</label>
             <input
               type="tel"
               value={form.phone}
@@ -170,9 +149,7 @@ export default function NewEmployeeForm() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Annual Salary
-            </label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Annual Salary</label>
             <input
               type="number"
               min="0"
@@ -185,11 +162,11 @@ export default function NewEmployeeForm() {
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <a href="/employees">
+          <Link href="/employees">
             <Button variant="ghost" type="button">
               Cancel
             </Button>
-          </a>
+          </Link>
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>

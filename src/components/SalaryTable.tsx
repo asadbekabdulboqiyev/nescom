@@ -138,12 +138,7 @@ export function SalaryTable({
   ];
 
   return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-xl border border-slate-200',
-        className
-      )}
-    >
+    <div className={cn('overflow-hidden rounded-xl border border-slate-200', className)}>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -170,10 +165,7 @@ export function SalaryTable({
           </thead>
           <tbody className="divide-y divide-slate-100">
             {sorted.map((record) => (
-              <tr
-                key={record.id}
-                className="hover:bg-slate-50 transition-colors"
-              >
+              <tr key={record.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Avatar src={record.avatar} alt={record.name} size="sm" />
@@ -183,15 +175,9 @@ export function SalaryTable({
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-slate-700">
-                  ${formatNumber(record.baseSalary)}
-                </td>
-                <td className="px-4 py-3 text-emerald-600">
-                  +${formatNumber(record.bonus)}
-                </td>
-                <td className="px-4 py-3 text-red-600">
-                  -${formatNumber(record.deductions)}
-                </td>
+                <td className="px-4 py-3 text-slate-700">${formatNumber(record.baseSalary)}</td>
+                <td className="px-4 py-3 text-emerald-600">+${formatNumber(record.bonus)}</td>
+                <td className="px-4 py-3 text-red-600">-${formatNumber(record.deductions)}</td>
                 <td className="px-4 py-3 font-semibold text-slate-900">
                   ${formatNumber(record.netPay)}
                 </td>
@@ -233,15 +219,18 @@ export function SalaryTable({
             {records.length} record{records.length !== 1 ? 's' : ''}
           </span>
           <div className="flex items-center gap-2">
-            {showFilteredExport && filteredRecords && filteredRecords.length > 0 && filteredRecords.length < records.length && (
-              <button
-                onClick={() => exportToCSV(filteredRecords, 'filtered')}
-                className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-              >
-                <Download className="h-4 w-4" />
-                Export Filtered CSV
-              </button>
-            )}
+            {showFilteredExport &&
+              filteredRecords &&
+              filteredRecords.length > 0 &&
+              filteredRecords.length < records.length && (
+                <button
+                  onClick={() => exportToCSV(filteredRecords, 'filtered')}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  Export Filtered CSV
+                </button>
+              )}
             <button
               onClick={() => exportToCSV(records, 'all')}
               className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"

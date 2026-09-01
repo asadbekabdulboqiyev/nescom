@@ -130,9 +130,7 @@ export default function TasksPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
-          <p className="text-sm text-slate-500">
-            Manage your team&apos;s tasks
-          </p>
+          <p className="text-sm text-slate-500">Manage your team&apos;s tasks</p>
         </div>
         <div className="flex gap-2">
           <label htmlFor="task-column-filter" className="sr-only">
@@ -162,9 +160,7 @@ export default function TasksPage() {
       {tasks.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center animate-fade-in">
           <ListTodo className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">
-            No tasks yet
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">No tasks yet</h2>
           <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
             Create your first task to start tracking work. Click the &quot;New Task&quot; button
             above to get started.
@@ -185,9 +181,7 @@ export default function TasksPage() {
                 <div key={column}>
                   <div className="flex items-center gap-2 mb-4">
                     <div className={`h-2.5 w-2.5 rounded-full ${columnColors[column]}`} />
-                    <h2 className="font-semibold text-slate-900">
-                      {columnLabels[column]}
-                    </h2>
+                    <h2 className="font-semibold text-slate-900">{columnLabels[column]}</h2>
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                       {columnTasks.length}
                     </span>
@@ -198,7 +192,9 @@ export default function TasksPage() {
                         key={task.id}
                         title={task.title}
                         status={task.status}
-                        priority={task.priority.toLowerCase() as 'low' | 'medium' | 'high' | 'urgent'}
+                        priority={
+                          task.priority.toLowerCase() as 'low' | 'medium' | 'high' | 'urgent'
+                        }
                         assignee={
                           task.assignee
                             ? { name: task.assignee.name, avatar: task.assignee.avatar }
@@ -229,9 +225,7 @@ export default function TasksPage() {
             <div className="rounded-xl border-2 border-red-300 bg-red-50/50 p-4">
               <div className="flex items-center gap-2 mb-4">
                 <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-                <h2 className="font-semibold text-red-700">
-                  Blocked
-                </h2>
+                <h2 className="font-semibold text-red-700">Blocked</h2>
                 <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
                   {blockedTasks.length}
                 </span>
@@ -249,9 +243,7 @@ export default function TasksPage() {
                         : { name: 'Unassigned', avatar: null }
                     }
                     assigneeId={task.assignee?.id}
-                    dueDate={
-                      task.dueDate ? new Date(task.dueDate).toLocaleDateString() : undefined
-                    }
+                    dueDate={task.dueDate ? new Date(task.dueDate).toLocaleDateString() : undefined}
                     userRole={user?.role}
                     currentUserId={user?.id}
                     onStatusChange={(newStatus) => handleStatusChange(task.id, newStatus)}

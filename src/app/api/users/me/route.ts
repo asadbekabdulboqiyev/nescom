@@ -1,20 +1,32 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, User } from '@/types';
 
 export async function GET(request: Request) {
+  const start = Date.now();
   try {
     const authHeader = request.headers.get('authorization');
     const cookieToken = request.headers.get('cookie')?.match(/token=([^;]+)/)?.[1];
     const token = authHeader?.replace('Bearer ', '') || cookieToken;
 
     if (!token) {
-      return NextResponse.json({ error: 'No token provided' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'No token provided' },
+        { status: 401 }
+      );
     }
 
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    let payload;
+    try {
+      payload = await verifyToken(token);
+    } catch {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Invalid token' },
+        { status: 401 }
+      );
     }
 
     const user = await prisma.user.findUnique({
@@ -34,12 +46,38 @@ export async function GET(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json({ user });
+    const typedUser: User = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      companyId: user.companyId,
+      avatar: user.avatar ?? null,
+      phone: user.phone ?? null,
+      salary: user.salary ?? null,
+      salaryDueDate: user.salaryDueDate?.toISOString() ?? null,
+      startDate: user.startDate?.toISOString() ?? null,
+      createdAt: '',
+    };
+
+    logger.info('Current user fetched', {
+      method: 'GET',
+      path: '/api/users/me',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ user: User }>>({
+      success: true,
+      data: { user: typedUser },
+    });
   } catch (error) {
-    console.error('Get user error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get user error', { method: 'GET', path: '/api/users/me', cause: error });
+    return handleApiError(error);
   }
 }

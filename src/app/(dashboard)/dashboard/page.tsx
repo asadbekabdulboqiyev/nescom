@@ -21,7 +21,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { Task, User, Salary } from '@/types';
 import Link from 'next/link';
 
-
 const SalaryOverview = dynamic(
   () => import('@/components/charts/SalaryOverview').then((mod) => mod.SalaryOverview),
   {
@@ -231,9 +230,7 @@ export default function DashboardPage() {
       {isEmpty && (
         <div className="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-8 text-center animate-fade-in">
           <Sparkles className="h-12 w-12 mx-auto mb-4 text-blue-500" />
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">
-            Welcome to Nescom!
-          </h2>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">Welcome to Nescom!</h2>
           <p className="text-slate-600 mb-6 max-w-md mx-auto">
             Get started by adding your first team member. Once you have employees, you can create
             tasks, send messages, and manage salaries.
@@ -258,7 +255,12 @@ export default function DashboardPage() {
             changeType="positive"
             icon={Users}
             gradient="blue"
-            sparklineData={[stats.totalEmployees, stats.totalEmployees * 0.8, stats.totalEmployees * 0.9, stats.totalEmployees]}
+            sparklineData={[
+              stats.totalEmployees,
+              stats.totalEmployees * 0.8,
+              stats.totalEmployees * 0.9,
+              stats.totalEmployees,
+            ]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '50ms' }}>
@@ -269,7 +271,12 @@ export default function DashboardPage() {
             changeType="positive"
             icon={CheckSquare}
             gradient="emerald"
-            sparklineData={[stats.activeTasks * 0.6, stats.activeTasks * 0.8, stats.activeTasks * 0.7, stats.activeTasks]}
+            sparklineData={[
+              stats.activeTasks * 0.6,
+              stats.activeTasks * 0.8,
+              stats.activeTasks * 0.7,
+              stats.activeTasks,
+            ]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '100ms' }}>
@@ -280,7 +287,12 @@ export default function DashboardPage() {
             changeType="negative"
             icon={DollarSign}
             gradient="amber"
-            sparklineData={[stats.pendingSalaries * 1.2, stats.pendingSalaries * 1.1, stats.pendingSalaries, stats.pendingSalaries * 0.9]}
+            sparklineData={[
+              stats.pendingSalaries * 1.2,
+              stats.pendingSalaries * 1.1,
+              stats.pendingSalaries,
+              stats.pendingSalaries * 0.9,
+            ]}
           />
         </div>
         <div className="animate-slide-in-up" style={{ animationDelay: '150ms' }}>
@@ -291,7 +303,12 @@ export default function DashboardPage() {
             changeType="positive"
             icon={Clock}
             gradient="violet"
-            sparklineData={[stats.completedTasks * 0.5, stats.completedTasks * 0.7, stats.completedTasks * 0.85, stats.completedTasks]}
+            sparklineData={[
+              stats.completedTasks * 0.5,
+              stats.completedTasks * 0.7,
+              stats.completedTasks * 0.85,
+              stats.completedTasks,
+            ]}
           />
         </div>
       </div>
@@ -309,9 +326,7 @@ export default function DashboardPage() {
             >
               <action.icon className="h-5 w-5" />
             </div>
-            <span className="text-sm font-medium text-slate-700">
-              {action.label}
-            </span>
+            <span className="text-sm font-medium text-slate-700">{action.label}</span>
           </Link>
         ))}
       </div>
@@ -380,12 +395,8 @@ export default function DashboardPage() {
                     className={`h-2 w-2 rounded-full ${priorityColor[task.priority] || 'bg-slate-400'}`}
                   />
                   <div>
-                    <p className="text-sm font-medium text-slate-900">
-                      {task.title}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {task.assignee?.name || 'Unassigned'}
-                    </p>
+                    <p className="text-sm font-medium text-slate-900">{task.title}</p>
+                    <p className="text-xs text-slate-500">{task.assignee?.name || 'Unassigned'}</p>
                   </div>
                 </div>
                 <Badge variant={statusColor[task.status] || 'default'}>
@@ -411,9 +422,7 @@ export default function DashboardPage() {
           {users.length === 0 ? (
             <div className="text-center py-8 col-span-3">
               <Users className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-              <p className="text-sm font-medium text-slate-500">
-                No team members yet
-              </p>
+              <p className="text-sm font-medium text-slate-500">No team members yet</p>
               <p className="text-xs text-slate-400 mt-1 mb-3">
                 Add your first employee to get started
               </p>
@@ -433,12 +442,8 @@ export default function DashboardPage() {
               >
                 <Avatar src={member.avatar} alt={member.name} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">
-                    {member.name}
-                  </p>
-                  <p className="text-xs text-slate-500 capitalize">
-                    {member.role.toLowerCase()}
-                  </p>
+                  <p className="text-sm font-medium text-slate-900 truncate">{member.name}</p>
+                  <p className="text-xs text-slate-500 capitalize">{member.role.toLowerCase()}</p>
                 </div>
               </div>
             ))

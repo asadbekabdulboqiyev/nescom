@@ -31,23 +31,19 @@ export function SalaryOverview({ data }: { data: SalaryData[] }) {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-900">Salary Overview</h3>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Paid vs pending across team members
-          </p>
+          <p className="text-xs text-slate-500 mt-0.5">Paid vs pending across team members</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-right">
             <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Paid</p>
-            <p className="text-sm font-bold text-emerald-600">
-              ${(totalPaid / 1000).toFixed(1)}k
-            </p>
+            <p className="text-sm font-bold text-emerald-600">${(totalPaid / 1000).toFixed(1)}k</p>
           </div>
           <div className="h-8 w-px bg-slate-200" />
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">Pending</p>
-            <p className="text-sm font-bold text-amber-600">
-              ${(totalPending / 1000).toFixed(1)}k
+            <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium">
+              Pending
             </p>
+            <p className="text-sm font-bold text-amber-600">${(totalPending / 1000).toFixed(1)}k</p>
           </div>
         </div>
       </div>
@@ -80,18 +76,14 @@ export function SalaryOverview({ data }: { data: SalaryData[] }) {
           />
           <Tooltip
             content={
-              <ChartTooltip
-                formatter={(value) => [`$${Number(value).toLocaleString()}`, '']}
-              />
+              <ChartTooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, '']} />
             }
             cursor={{ fill: 'rgba(148, 163, 184, 0.08)' }}
           />
           <Legend
             iconType="circle"
             iconSize={8}
-            formatter={(value: string) => (
-              <span className="text-xs text-slate-600">{value}</span>
-            )}
+            formatter={(value: string) => <span className="text-xs text-slate-600">{value}</span>}
           />
           <Bar
             dataKey="paid"

@@ -43,9 +43,7 @@ export function ChartTooltip({
                 />
               )}
               <span className="text-xs text-slate-500 flex-1">{displayName}</span>
-              <span className="text-xs font-bold text-slate-900 tabular-nums">
-                {displayValue}
-              </span>
+              <span className="text-xs font-bold text-slate-900 tabular-nums">{displayValue}</span>
             </div>
           );
         })}

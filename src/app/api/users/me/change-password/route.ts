@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse } from '@/types';
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
@@ -10,6 +13,7 @@ const changePasswordSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const cookieToken = request.headers.get('cookie')?.match(/token=([^;]+)/)?.[1];
     const authHeader = request.headers.get('authorization');
@@ -17,21 +21,27 @@ export async function POST(request: Request) {
     const token = bearerToken || cookieToken;
 
     if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     let payload;
     try {
-      payload = verifyToken(token);
+      payload = await verifyToken(token);
     } catch {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Invalid token' },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const validation = changePasswordSchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.issues[0].message },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
@@ -43,12 +53,18 @@ export async function POST(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'User not found' },
+        { status: 404 }
+      );
     }
 
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) {
-      return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Current password is incorrect' },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -57,9 +73,22 @@ export async function POST(request: Request) {
       data: { password: hashedPassword },
     });
 
-    return NextResponse.json({ message: 'Password changed successfully' });
+    logger.info('Password changed', {
+      method: 'POST',
+      path: '/api/users/me/change-password',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse>(
+      { success: true, message: 'Password changed successfully' },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Change password error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Change password error', {
+      method: 'POST',
+      path: '/api/users/me/change-password',
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }

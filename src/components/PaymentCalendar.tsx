@@ -82,15 +82,11 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
   const selectedDayPayments = selectedDay ? paymentsByDay[selectedDay] || [] : [];
 
   const totalPending = useMemo(() => {
-    return payments
-      .filter((p) => p.status !== 'PAID')
-      .reduce((sum, p) => sum + p.amount, 0);
+    return payments.filter((p) => p.status !== 'PAID').reduce((sum, p) => sum + p.amount, 0);
   }, [payments]);
 
   const totalPaid = useMemo(() => {
-    return payments
-      .filter((p) => p.status === 'PAID')
-      .reduce((sum, p) => sum + p.amount, 0);
+    return payments.filter((p) => p.status === 'PAID').reduce((sum, p) => sum + p.amount, 0);
   }, [payments]);
 
   const upcomingDue = useMemo(() => {
@@ -272,10 +268,10 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
                           p.status === 'PAID'
                             ? 'bg-emerald-100 text-emerald-700'
                             : getDaysUntil(p.dueDate) < 0
-                            ? 'bg-red-100 text-red-700'
-                            : getDaysUntil(p.dueDate) <= 3
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-slate-100 text-slate-700'
+                              ? 'bg-red-100 text-red-700'
+                              : getDaysUntil(p.dueDate) <= 3
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-slate-100 text-slate-700'
                         )}
                       >
                         {formatCurrency(p.amount)}
@@ -330,10 +326,10 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
                 p.status === 'PAID'
                   ? 'Paid'
                   : days < 0
-                  ? `${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} overdue`
-                  : days === 0
-                  ? 'Due today'
-                  : `${days} day${days !== 1 ? 's' : ''} left`;
+                    ? `${Math.abs(days)} day${Math.abs(days) !== 1 ? 's' : ''} overdue`
+                    : days === 0
+                      ? 'Due today'
+                      : `${days} day${days !== 1 ? 's' : ''} left`;
 
               return (
                 <div
@@ -347,10 +343,10 @@ export function PaymentCalendar({ payments, onPay, onMarkPaid }: PaymentCalendar
                         p.status === 'PAID'
                           ? 'bg-emerald-500'
                           : days < 0
-                          ? 'bg-red-500'
-                          : days <= 3
-                          ? 'bg-amber-500'
-                          : 'bg-slate-400'
+                            ? 'bg-red-500'
+                            : days <= 3
+                              ? 'bg-amber-500'
+                              : 'bg-slate-400'
                       )}
                     />
                     <div>

@@ -100,9 +100,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
         </Link>
         <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center">
           <AlertCircle className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-          <p className="text-slate-500 font-medium">
-            {error || 'Task not found'}
-          </p>
+          <p className="text-slate-500 font-medium">{error || 'Task not found'}</p>
         </div>
       </div>
     );
@@ -166,9 +164,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               </button>
             </div>
             {task.description && (
-              <p className="text-sm text-slate-600 leading-relaxed">
-                {task.description}
-              </p>
+              <p className="text-sm text-slate-600 leading-relaxed">{task.description}</p>
             )}
           </div>
 
@@ -240,9 +236,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
               )}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-500">Created</span>
-                <span className="text-sm text-slate-600">
-                  {formatDate(task.createdAt)}
-                </span>
+                <span className="text-sm text-slate-600">{formatDate(task.createdAt)}</span>
               </div>
             </div>
           </div>

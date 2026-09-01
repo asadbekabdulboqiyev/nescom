@@ -3,21 +3,37 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken } from '@/lib/auth';
 import { registerSchema, validateRequest } from '@/lib/validation';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse } from '@/types';
+
+interface RegisterResponse {
+  user: { id: string; email: string; name: string; role: string };
+  token: string;
+  pending?: boolean;
+}
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const body = await request.json();
     const validation = validateRequest(registerSchema, body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
     }
 
     const { email, password, name, companyId } = validation.data;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Email already registered' },
+        { status: 409 }
+      );
     }
 
     let targetCompanyId = companyId;
@@ -27,8 +43,8 @@ export async function POST(request: Request) {
         orderBy: { createdAt: 'asc' },
       });
       if (!firstCompany) {
-        return NextResponse.json(
-          { error: 'Company not found. Please create a company first.' },
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: 'Company not found. Please create a company first.' },
           { status: 400 }
         );
       }
@@ -39,7 +55,10 @@ export async function POST(request: Request) {
       where: { id: targetCompanyId },
     });
     if (!company) {
-      return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Company not found' },
+        { status: 404 }
+      );
     }
 
     const userCount = await prisma.user.count({
@@ -50,7 +69,6 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     if (isFirstUser) {
-      // First user → CEO, auto-approved
       const user = await prisma.user.create({
         data: {
           email,
@@ -61,15 +79,20 @@ export async function POST(request: Request) {
         },
       });
 
-      const token = signToken({
+      const token = await signToken({
         userId: user.id,
         email: user.email,
         companyId: user.companyId,
         role: user.role,
       });
 
-      const response = NextResponse.json(
-        { user: { id: user.id, email: user.email, name: user.name, role: user.role }, token },
+      const data: RegisterResponse = {
+        user: { id: user.id, email: user.email, name: user.name, role: user.role },
+        token,
+      };
+
+      const response = NextResponse.json<ApiResponse<RegisterResponse>>(
+        { success: true, data, message: 'Registration successful' },
         { status: 201 }
       );
 
@@ -81,10 +104,15 @@ export async function POST(request: Request) {
         path: '/',
       });
 
+      logger.info('First user registered as CEO', {
+        method: 'POST',
+        path: '/api/auth/register',
+        statusCode: 201,
+        duration: Date.now() - start,
+      });
       return response;
     }
 
-    // Other users → PENDING status, need CEO/Manager approval
     const user = await prisma.user.create({
       data: {
         email,
@@ -103,20 +131,25 @@ export async function POST(request: Request) {
       },
     });
 
-    // Return limited token — user can see pending status but can't access dashboard
-    const token = signToken({
+    const token = await signToken({
       userId: user.id,
       email: user.email,
       companyId: user.companyId,
       role: 'PENDING',
     });
 
-    const response = NextResponse.json(
+    const data: RegisterResponse = {
+      user: { id: user.id, email: user.email, name: user.name, role: 'PENDING' },
+      token,
+      pending: true,
+    };
+
+    const response = NextResponse.json<ApiResponse<RegisterResponse>>(
       {
-        user: { id: user.id, email: user.email, name: user.name, role: 'PENDING' },
-        token,
-        message: 'Your account is pending approval. Please wait for the company admin to approve your request.',
-        pending: true,
+        success: true,
+        data,
+        message:
+          'Your account is pending approval. Please wait for the company admin to approve your request.',
       },
       { status: 201 }
     );
@@ -129,9 +162,15 @@ export async function POST(request: Request) {
       path: '/',
     });
 
+    logger.info('User registered as PENDING', {
+      method: 'POST',
+      path: '/api/auth/register',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
     return response;
   } catch (error) {
-    console.error('Register error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Register error', { method: 'POST', path: '/api/auth/register', cause: error });
+    return handleApiError(error);
   }
 }

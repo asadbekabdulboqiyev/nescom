@@ -183,9 +183,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         </Link>
         <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center">
           <AlertCircle className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-          <p className="text-slate-500 font-medium">
-            {error || 'Employee not found'}
-          </p>
+          <p className="text-slate-500 font-medium">{error || 'Employee not found'}</p>
         </div>
       </div>
     );
@@ -250,9 +248,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Tasks</h2>
           {tasks.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">
-              No tasks assigned
-            </p>
+            <p className="text-sm text-slate-500 text-center py-4">No tasks assigned</p>
           ) : (
             <div className="space-y-2">
               {tasks.map((task) => (
@@ -261,9 +257,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                   className="flex items-center justify-between p-3 rounded-lg border border-slate-100"
                 >
                   <div>
-                    <p className="text-sm font-medium text-slate-900">
-                      {task.title}
-                    </p>
+                    <p className="text-sm font-medium text-slate-900">{task.title}</p>
                     <p className="text-xs text-slate-500">{task.priority}</p>
                   </div>
                   <Badge
@@ -284,13 +278,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">
-            Salary History
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Salary History</h2>
           {salaries.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">
-              No salary records
-            </p>
+            <p className="text-sm text-slate-500 text-center py-4">No salary records</p>
           ) : (
             <div className="space-y-2">
               {salaries.map((sal) => (
@@ -328,9 +318,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Edit Employee
-              </h2>
+              <h2 className="text-lg font-semibold text-slate-900">Edit Employee</h2>
               <button
                 onClick={() => setEditOpen(false)}
                 className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
@@ -354,9 +342,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Name
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
                 <input
                   type="text"
                   value={editName}
@@ -365,9 +351,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
                 <input
                   type="email"
                   value={editEmail}
@@ -376,9 +360,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Phone
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
                 <input
                   type="text"
                   value={editPhone}
@@ -387,9 +369,7 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Role
-                </label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Role</label>
                 <select
                   value={editRole}
                   onChange={(e) => setEditRole(e.target.value)}

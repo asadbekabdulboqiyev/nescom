@@ -121,10 +121,7 @@ export default function EmployeesPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-slate-200 bg-white p-5"
-            >
+            <div key={i} className="rounded-xl border border-slate-200 bg-white p-5">
               <div className="flex items-start gap-4">
                 <div className="h-12 w-12 rounded-full bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-2">
@@ -159,9 +156,7 @@ export default function EmployeesPage() {
       {employees.length === 0 ? (
         <div className="rounded-xl border-2 border-dashed border-slate-200 p-12 text-center animate-fade-in">
           <Users className="h-16 w-16 mx-auto mb-4 text-slate-300" />
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">
-            No team members yet
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">No team members yet</h2>
           <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
             Start building your team by adding your first employee. You&apos;ll be able to create
             tasks, send messages, and manage salaries once you have team members.
@@ -306,9 +301,7 @@ export default function EmployeesPage() {
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900">Remove Employee</h3>
-                <p className="text-sm text-slate-500">
-                  This action cannot be undone
-                </p>
+                <p className="text-sm text-slate-500">This action cannot be undone</p>
               </div>
             </div>
 

@@ -20,8 +20,16 @@ interface NotificationSettingsProps {
 }
 
 const notifItems = [
-  { key: 'emailNotifications' as const, label: 'Email notifications', desc: 'Receive email for important updates' },
-  { key: 'taskAssignments' as const, label: 'Task assignments', desc: 'Notify when assigned a new task' },
+  {
+    key: 'emailNotifications' as const,
+    label: 'Email notifications',
+    desc: 'Receive email for important updates',
+  },
+  {
+    key: 'taskAssignments' as const,
+    label: 'Task assignments',
+    desc: 'Notify when assigned a new task',
+  },
   { key: 'salaryUpdates' as const, label: 'Salary updates', desc: 'Notify on salary changes' },
   { key: 'weeklyDigest' as const, label: 'Weekly digest', desc: 'Receive weekly summary email' },
   { key: 'messageAlerts' as const, label: 'Message alerts', desc: 'Notify on new messages' },

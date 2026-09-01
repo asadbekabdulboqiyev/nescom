@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { canManageCompany } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
 import { z } from 'zod';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, Company } from '@/types';
 
 const createCompanySchema = z.object({
   name: z.string().min(1, 'Company name is required'),
@@ -11,6 +14,7 @@ const createCompanySchema = z.object({
 });
 
 export async function GET() {
+  const start = Date.now();
   try {
     const companies = await prisma.company.findMany({
       select: {
@@ -24,41 +28,55 @@ export async function GET() {
       orderBy: { createdAt: 'asc' },
     });
 
-    return NextResponse.json(
-      { companies },
+    const typedCompanies = companies.map((c) => ({
+      id: c.id,
+      name: c.name,
+      code: c.code,
+      industry: c.industry ?? null,
+      description: c.description ?? null,
+      userCount: c._count.users,
+    }));
+
+    logger.info('Companies listed', {
+      method: 'GET',
+      path: '/api/companies',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ companies: typeof typedCompanies }>>(
+      { success: true, data: { companies: typedCompanies } },
       {
         headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
       }
     );
   } catch (error) {
-    console.error('Get companies error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get companies error', { method: 'GET', path: '/api/companies', cause: error });
+    return handleApiError(error);
   }
 }
 
 export async function POST(request: Request) {
+  const start = Date.now();
   try {
     const body = await request.json();
     const validation = createCompanySchema.safeParse(body);
     if (!validation.success) {
-      return NextResponse.json(
-        { error: validation.error.issues[0].message },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error.issues[0].message },
         { status: 400 }
       );
     }
     const { name, industry, description } = validation.data;
 
-    // Generate unique 6-char code from company name
     const baseCode = name
       .trim()
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, '')
       .slice(0, 4)
       .padEnd(4, 'X');
-    
+
     let code = baseCode + Math.floor(100 + Math.random() * 900);
-    
-    // Ensure unique code
+
     let attempts = 0;
     while (attempts < 10) {
       const existing = await prisma.company.findUnique({ where: { code } });
@@ -76,20 +94,38 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ company }, { status: 201 });
+    const typedCompany: Company = {
+      id: company.id,
+      name: company.name,
+      code: company.code,
+      industry: company.industry ?? null,
+      description: company.description ?? null,
+    };
+
+    logger.info('Company created', {
+      method: 'POST',
+      path: '/api/companies',
+      statusCode: 201,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ company: Company }>>(
+      { success: true, data: { company: typedCompany } },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Create company error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Create company error', { method: 'POST', path: '/api/companies', cause: error });
+    return handleApiError(error);
   }
 }
 
 export async function PUT(request: Request) {
+  const start = Date.now();
   try {
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!userRole || !canManageCompany(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to update company' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to update company' },
         { status: 403 }
       );
     }
@@ -98,7 +134,10 @@ export async function PUT(request: Request) {
     const { id, name, industry, description } = body;
 
     if (!id) {
-      return NextResponse.json({ error: 'Company ID is required' }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Company ID is required' },
+        { status: 400 }
+      );
     }
 
     const company = await prisma.company.update({
@@ -110,9 +149,26 @@ export async function PUT(request: Request) {
       },
     });
 
-    return NextResponse.json({ company });
+    const typedCompany: Company = {
+      id: company.id,
+      name: company.name,
+      code: company.code,
+      industry: company.industry ?? null,
+      description: company.description ?? null,
+    };
+
+    logger.info('Company updated', {
+      method: 'PUT',
+      path: '/api/companies',
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ company: Company }>>({
+      success: true,
+      data: { company: typedCompany },
+    });
   } catch (error) {
-    console.error('Update company error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Update company error', { method: 'PUT', path: '/api/companies', cause: error });
+    return handleApiError(error);
   }
 }

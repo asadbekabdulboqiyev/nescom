@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { updateTaskSchema, validateRequest } from '@/lib/validation';
 import { canManageTasks } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
+import { handleApiError } from '@/lib/errors';
+import { logger } from '@/lib/logger';
+import type { ApiResponse, Task } from '@/types';
 
 type TaskStatus = 'TODO' | 'ACCEPTED' | 'IN_PROGRESS' | 'READY' | 'DONE' | 'BLOCKED';
 
@@ -49,11 +52,43 @@ function canTransition(
   return false;
 }
 
+function serializeTask(t: Record<string, unknown>): Task {
+  const dueDate = t.dueDate as Date | null | undefined;
+  const createdAt = t.createdAt as Date;
+  const assignee = t.assignee as
+    { id: string; name: string; avatar: string | null } | null | undefined;
+  const creator = t.creator as
+    { id: string; name: string; avatar: string | null } | null | undefined;
+  return {
+    id: t.id as string,
+    title: t.title as string,
+    description: (t.description as string | null) ?? null,
+    status: t.status as string,
+    priority: t.priority as string,
+    assigneeId: (t.assigneeId as string | null) ?? null,
+    creatorId: t.creatorId as string,
+    companyId: t.companyId as string,
+    createdAt: createdAt.toISOString(),
+    dueDate: dueDate?.toISOString() ?? null,
+    tags: (t.tags as string[]) ?? [],
+    assignee: assignee
+      ? { id: assignee.id, name: assignee.name, avatar: assignee.avatar ?? null }
+      : undefined,
+    creator: creator
+      ? { id: creator.id, name: creator.name, avatar: creator.avatar ?? null }
+      : undefined,
+  };
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     const { id } = await params;
@@ -67,29 +102,49 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     });
 
     if (!task) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Task not found' },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(task);
+    logger.info('Task fetched', {
+      method: 'GET',
+      path: `/api/tasks/${id}`,
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ task: Task }>>({
+      success: true,
+      data: { task: serializeTask(task as unknown as Record<string, unknown>) },
+    });
   } catch (error) {
-    console.error('Get task error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Get task error', {
+      method: 'GET',
+      path: `/api/tasks/${await params.then((p) => p.id)}`,
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userId = request.headers.get('x-user-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId || !userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canManageTasks(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to update tasks' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to update tasks' },
         { status: 403 }
       );
     }
@@ -99,7 +154,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const validation = validateRequest(updateTaskSchema, body);
 
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: validation.error },
+        { status: 400 }
+      );
     }
 
     const existingTask = await prisma.task.findFirst({
@@ -107,7 +165,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     });
 
     if (!existingTask) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Task not found' },
+        { status: 404 }
+      );
     }
 
     const { title, description, status, priority, dueDate, assigneeId } = validation.data;
@@ -115,8 +176,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (status && status !== existingTask.status) {
       const allowed = VALID_TRANSITIONS[existingTask.status as TaskStatus] || [];
       if (!allowed.includes(status as TaskStatus)) {
-        return NextResponse.json(
+        return NextResponse.json<ApiResponse>(
           {
+            success: false,
             error: `Transition from ${existingTask.status} to ${status} is not allowed. Allowed: ${allowed.join(', ') || 'none'}`,
           },
           { status: 400 }
@@ -132,8 +194,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           existingTask.assigneeId
         )
       ) {
-        return NextResponse.json(
-          { error: 'You do not have permission for this transition' },
+        return NextResponse.json<ApiResponse>(
+          { success: false, error: 'You do not have permission for this transition' },
           { status: 403 }
         );
       }
@@ -157,25 +219,42 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       },
     });
 
-    return NextResponse.json(task);
+    logger.info('Task updated', {
+      method: 'PUT',
+      path: `/api/tasks/${id}`,
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse<{ task: Task }>>({
+      success: true,
+      data: { task: serializeTask(task as unknown as Record<string, unknown>) },
+    });
   } catch (error) {
-    console.error('Update task error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Update task error', {
+      method: 'PUT',
+      path: `/api/tasks/${await params.then((p) => p.id)}`,
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const start = Date.now();
   try {
     const companyId = request.headers.get('x-company-id');
     const userRole = request.headers.get('x-user-role') as Role | null;
 
     if (!companyId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
     if (!userRole || !canManageTasks(userRole)) {
-      return NextResponse.json(
-        { error: 'You do not have permission to delete tasks' },
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to delete tasks' },
         { status: 403 }
       );
     }
@@ -187,14 +266,30 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     });
 
     if (!existingTask) {
-      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'Task not found' },
+        { status: 404 }
+      );
     }
 
     await prisma.task.delete({ where: { id } });
 
-    return NextResponse.json({ message: 'Task deleted' });
+    logger.info('Task deleted', {
+      method: 'DELETE',
+      path: `/api/tasks/${id}`,
+      statusCode: 200,
+      duration: Date.now() - start,
+    });
+    return NextResponse.json<ApiResponse>(
+      { success: true, message: 'Task deleted' },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Delete task error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error('Delete task error', {
+      method: 'DELETE',
+      path: `/api/tasks/${await params.then((p) => p.id)}`,
+      cause: error,
+    });
+    return handleApiError(error);
   }
 }

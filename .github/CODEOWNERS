@@ -1,0 +1,31 @@
+# Code Owners for Nescom
+# These owners will be automatically requested for review
+# when a pull request modifies matching files.
+#
+# Format: <pattern> <@owner1> <@owner2> ...
+
+# Default - all files require review from the core team
+* @nescom/core-team
+
+# Frontend
+/src/app/ @nescom/frontend
+/src/hooks/ @nescom/frontend
+/src/components/ @nescom/frontend
+
+# Backend / API
+/src/lib/ @nescom/backend
+/src/middleware.ts @nescom/backend
+
+# DevOps & Infrastructure
+/Dockerfile @nescom/devops
+/docker-compose.yml @nescom/devops
+/.github/ @nescom/devops
+/vercel.json @nescom/devops
+
+# Database
+/prisma/ @nescom/backend
+/prisma/schema.prisma @nescom/backend
+
+# Documentation
+*.md @nescom/core-team
+/docs/ @nescom/core-team

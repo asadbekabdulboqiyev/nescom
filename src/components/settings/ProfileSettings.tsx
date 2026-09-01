@@ -39,7 +39,9 @@ export function ProfileSettings({
         <Avatar src={null} alt={user?.name || 'User'} size="lg" />
         <div>
           <p className="text-sm font-semibold text-slate-900">{user?.name || 'User'}</p>
-          <p className="text-xs text-slate-500 capitalize">{user?.role?.toLowerCase() || 'Member'}</p>
+          <p className="text-xs text-slate-500 capitalize">
+            {user?.role?.toLowerCase() || 'Member'}
+          </p>
           <p className="text-xs text-slate-400 mt-0.5">{user?.email}</p>
         </div>
       </div>
@@ -71,7 +73,10 @@ export function ProfileSettings({
           </div>
         </div>
         <div>
-          <label htmlFor="profile-email" className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label
+            htmlFor="profile-email"
+            className="block text-sm font-medium text-slate-700 mb-1.5"
+          >
             Email
           </label>
           <input
