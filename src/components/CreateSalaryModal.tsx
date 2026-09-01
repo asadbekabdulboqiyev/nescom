@@ -52,8 +52,9 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
         if (token) headers['Authorization'] = `Bearer ${token}`;
         const res = await fetch('/api/users', { headers, credentials: 'include' });
         if (res.ok) {
-          const data = await res.json();
-          setEmployees(data.users || []);
+          const json = await res.json();
+          const payload = json.data ?? json;
+          setEmployees(Array.isArray(payload) ? payload : payload.users || []);
         }
       } catch (error) {
         console.error('Failed to fetch employees:', error);
@@ -100,8 +101,9 @@ export function CreateSalaryModal({ open, onClose, onSalaryCreated }: CreateSala
       });
 
       if (res.ok) {
-        const data = await res.json();
-        onSalaryCreated(data.salary);
+        const json = await res.json();
+        const payload = json.data ?? json;
+        onSalaryCreated(payload.salary);
         setForm({ userId: '', amount: '', dueDate: '', bonus: '', deductions: '' });
         onClose();
       } else {

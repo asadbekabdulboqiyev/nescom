@@ -79,8 +79,9 @@ export default function SalaryPage() {
 
       const res = await fetch('/api/salary', { headers, credentials: 'include' });
       if (res.ok) {
-        const data = await res.json();
-        const salaries = Array.isArray(data) ? data : data.salaries || [];
+        const json = await res.json();
+        const payload = json.data ?? json;
+        const salaries = Array.isArray(payload) ? payload : payload.salaries || [];
         const records: SalaryRecord[] = salaries.map((s: Record<string, unknown>) => {
           const amount = (s.amount as number) || 0;
           const bonus = (s.bonus as number) || 0;

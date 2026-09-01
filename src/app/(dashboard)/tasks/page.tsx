@@ -62,8 +62,9 @@ export default function TasksPage() {
 
       const res = await fetch('/api/tasks', { headers, credentials: 'include' });
       if (res.ok) {
-        const data = await res.json();
-        const allTasks = Array.isArray(data) ? data : data.tasks || [];
+        const json = await res.json();
+        const payload = json.data ?? json;
+        const allTasks = Array.isArray(payload) ? payload : payload.tasks || [];
         setTasks(allTasks);
       }
     } catch (error) {
@@ -90,7 +91,9 @@ export default function TasksPage() {
       });
 
       if (res.ok) {
-        const updated = await res.json();
+        const json = await res.json();
+        const payload = json.data ?? json;
+        const updated = payload.task ?? payload;
         setTasks((prev) =>
           prev.map((t) => (t.id === taskId ? { ...t, status: updated.status } : t))
         );

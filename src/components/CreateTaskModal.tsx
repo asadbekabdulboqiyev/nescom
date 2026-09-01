@@ -53,8 +53,9 @@ export function CreateTaskModal({ open, onClose, onTaskCreated }: CreateTaskModa
         if (token) headers['Authorization'] = `Bearer ${token}`;
         const res = await fetch('/api/users', { headers });
         if (res.ok) {
-          const data = await res.json();
-          setEmployees(data.users || []);
+          const json = await res.json();
+          const payload = json.data ?? json;
+          setEmployees(Array.isArray(payload) ? payload : payload.users || []);
         }
       } catch (error) {
         console.error('Failed to fetch employees:', error);
@@ -95,8 +96,9 @@ export function CreateTaskModal({ open, onClose, onTaskCreated }: CreateTaskModa
       });
 
       if (res.ok) {
-        const data = await res.json();
-        onTaskCreated(data.task);
+        const json = await res.json();
+        const payload = json.data ?? json;
+        onTaskCreated(payload.task);
         setForm({ title: '', description: '', priority: 'MEDIUM', assigneeId: '', dueDate: '' });
         onClose();
       }

@@ -40,7 +40,7 @@ export default function TaskDetailPage({ params }: { params: Promise<{ id: strin
           throw new Error('Failed to fetch task');
         }
         const data = await res.json();
-        setTask(data);
+        setTask(data.data?.task ?? data);
       } catch (err) {
         console.error('Failed to fetch task:', err);
         setError('Failed to load task');

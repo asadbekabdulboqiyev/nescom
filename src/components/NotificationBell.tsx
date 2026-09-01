@@ -36,13 +36,14 @@ export function NotificationBell() {
     try {
       const res = await fetch('/api/notifications', { credentials: 'include' });
       if (res.ok) {
-        const data = await res.json();
-        const newCount = data.unreadCount ?? 0;
+        const json = await res.json();
+        const payload = json.data ?? json;
+        const newCount = payload.unreadCount ?? 0;
         if (newCount > unreadCount) {
           setAnimateBadge(true);
           setTimeout(() => setAnimateBadge(false), 600);
         }
-        setNotifications(data.notifications || []);
+        setNotifications(payload.notifications || []);
         setUnreadCount(newCount);
       }
     } catch {

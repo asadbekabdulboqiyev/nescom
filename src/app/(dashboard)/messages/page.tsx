@@ -48,8 +48,9 @@ export default function MessagesPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
-        const data = await res.json();
-        setConversations(data.conversations || []);
+        const json = await res.json();
+        const payload = json.data ?? json;
+        setConversations(payload.conversations || []);
       }
     } catch (err) {
       console.error('Failed to fetch conversations:', err);
@@ -71,8 +72,9 @@ export default function MessagesPage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
-          const data = await res.json();
-          setMessages(data.messages || []);
+          const json = await res.json();
+          const payload = json.data ?? json;
+          setMessages(Array.isArray(payload) ? payload : payload.messages || []);
         }
       } catch (err) {
         console.error('Failed to fetch messages:', err);
@@ -102,8 +104,9 @@ export default function MessagesPage() {
         body: JSON.stringify({ content, receiverId: selectedUserId }),
       });
       if (res.ok) {
-        const data = await res.json();
-        setMessages((prev) => [...prev, data.message]);
+        const json = await res.json();
+        const payload = json.data ?? json;
+        setMessages((prev) => [...prev, payload.message]);
         fetchConversations();
       }
     } catch (err) {

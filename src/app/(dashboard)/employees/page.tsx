@@ -60,8 +60,9 @@ export default function EmployeesPage() {
 
         const res = await fetch('/api/users', { headers, credentials: 'include' });
         if (res.ok) {
-          const data = await res.json();
-          const users = Array.isArray(data) ? data : data.users || [];
+          const json = await res.json();
+          const payload = json.data ?? json;
+          const users = Array.isArray(payload) ? payload : payload.users || [];
           setEmployees(users);
         }
       } catch (error) {

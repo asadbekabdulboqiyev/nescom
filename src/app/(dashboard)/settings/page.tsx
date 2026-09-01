@@ -53,8 +53,9 @@ export default function SettingsPage() {
       try {
         const res = await fetch('/api/companies', { credentials: 'include' });
         if (res.ok) {
-          const data = await res.json();
-          const companies = data.companies || [];
+          const json = await res.json();
+          const payload = json.data ?? json;
+          const companies = payload.companies || [];
           const myCompany = companies.find((c: { id: string }) => c.id === user?.companyId);
           if (myCompany) {
             setCompanyId(myCompany.id);

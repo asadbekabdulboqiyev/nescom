@@ -17,9 +17,10 @@ export default function LoginForm() {
   useEffect(() => {
     fetch('/api/companies')
       .then((res) => res.json())
-      .then((data) => {
-        const totalUsers = (data.companies || []).reduce(
-          (sum: number, c: { _count: { users: number } }) => sum + c._count.users,
+      .then((json) => {
+        const payload = json.data ?? json;
+        const totalUsers = (payload.companies || []).reduce(
+          (sum: number, c: { userCount: number }) => sum + (c.userCount ?? 0),
           0
         );
         setNoUsers(totalUsers === 0);

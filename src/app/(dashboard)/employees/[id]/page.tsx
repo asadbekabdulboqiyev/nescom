@@ -81,18 +81,21 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         }
 
         if (userRes.ok) {
-          const userData = await userRes.json();
-          setEmployee(userData.user || userData);
+          const json = await userRes.json();
+          const payload = json.data ?? json;
+          setEmployee(payload.user || payload);
         }
 
         if (tasksRes.ok) {
-          const tasksData = await tasksRes.json();
-          setTasks(Array.isArray(tasksData) ? tasksData : tasksData.tasks || []);
+          const json = await tasksRes.json();
+          const payload = json.data ?? json;
+          setTasks(Array.isArray(payload) ? payload : payload.tasks || []);
         }
 
         if (salaryRes.ok) {
-          const salaryData = await salaryRes.json();
-          setSalaries(Array.isArray(salaryData) ? salaryData : salaryData.salaries || []);
+          const json = await salaryRes.json();
+          const payload = json.data ?? json;
+          setSalaries(Array.isArray(payload) ? payload : payload.salaries || []);
         }
       } catch (err) {
         console.error('Failed to fetch employee data:', err);
@@ -139,8 +142,9 @@ export default function EmployeeDetailPage({ params }: { params: Promise<{ id: s
         const data = await res.json();
         throw new Error(data.error || 'Failed to update');
       }
-      const updated = await res.json();
-      setEmployee(updated);
+      const json = await res.json();
+      const payload = json.data ?? json;
+      setEmployee(payload.user ?? payload);
       setEditSuccess(true);
       setTimeout(() => setEditOpen(false), 1000);
     } catch (err) {

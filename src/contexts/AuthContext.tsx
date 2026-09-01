@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (res.ok) {
         const data = await res.json();
-        setUser(data.user);
+        setUser(data.data?.user ?? null);
       } else {
         setUser(null);
         setToken(null);
@@ -77,15 +77,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
 
+    const payload = data.data ?? data;
+
     // Check if user is PENDING
-    if (data.user.role === 'PENDING') {
+    if (payload.user.role === 'PENDING') {
       throw new Error(
         'Your account is pending approval. Please wait for the company admin to approve your request.'
       );
     }
 
-    setToken(data.token);
-    setUser(data.user);
+    setToken(payload.token);
+    setUser(payload.user);
   };
 
   const register = async (regData: {
@@ -103,13 +105,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Registration failed');
 
+    const payload = data.data ?? data;
+
     // If user is PENDING, don't auto-login
-    if (data.pending) {
+    if (payload.pending) {
       throw new Error(data.message || 'Your account is pending approval.');
     }
 
-    setToken(data.token);
-    setUser(data.user);
+    setToken(payload.token);
+    setUser(payload.user);
   };
 
   return (

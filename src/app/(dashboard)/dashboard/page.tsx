@@ -136,16 +136,18 @@ export default function DashboardPage() {
 
         let usersList: User[] = [];
         if (usersRes.ok) {
-          const data = await usersRes.json();
-          usersList = Array.isArray(data) ? data : data.users || [];
+          const json = await usersRes.json();
+          const payload = json.data ?? json;
+          usersList = Array.isArray(payload) ? payload : payload.users || [];
           setUsers(usersList);
           setStats((prev) => ({ ...prev, totalEmployees: usersList.length }));
         }
 
         let allTasks: Task[] = [];
         if (tasksRes.ok) {
-          const data = await tasksRes.json();
-          allTasks = Array.isArray(data) ? data : data.tasks || [];
+          const json = await tasksRes.json();
+          const payload = json.data ?? json;
+          allTasks = Array.isArray(payload) ? payload : payload.tasks || [];
           setTasks(allTasks.slice(0, 5));
           setStats((prev) => ({
             ...prev,
@@ -156,8 +158,9 @@ export default function DashboardPage() {
 
         let salaries: Salary[] = [];
         if (salaryRes.ok) {
-          const data = await salaryRes.json();
-          salaries = Array.isArray(data) ? data : data.salaries || [];
+          const json = await salaryRes.json();
+          const payload = json.data ?? json;
+          salaries = Array.isArray(payload) ? payload : payload.salaries || [];
           setSalaryData(salaries);
           setStats((prev) => ({
             ...prev,

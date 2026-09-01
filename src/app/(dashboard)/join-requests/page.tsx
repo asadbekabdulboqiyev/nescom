@@ -51,8 +51,9 @@ export default function JoinRequestsPage() {
         const data = await res.json();
         throw new Error(data.error || 'Failed to fetch requests');
       }
-      const data = await res.json();
-      setRequests(data.joinRequests || []);
+      const json = await res.json();
+      const payload = json.data ?? json;
+      setRequests(payload.joinRequests || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch requests');
     } finally {

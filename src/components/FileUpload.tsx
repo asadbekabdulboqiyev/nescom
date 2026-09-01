@@ -55,8 +55,9 @@ export function FileUpload({
             body: formData,
           });
           if (!res.ok) throw new Error('Upload failed');
-          const data = await res.json();
-          onUpload?.(data);
+          const json = await res.json();
+          const payload = json.data ?? json;
+          onUpload?.(payload);
         } catch {
           // silently fail
         } finally {

@@ -23,7 +23,7 @@ interface Company {
   code: string;
   industry: string | null;
   description: string | null;
-  _count: { users: number };
+  userCount: number;
 }
 
 interface FormData {
@@ -80,8 +80,9 @@ export default function RegisterPage() {
   useEffect(() => {
     fetch('/api/companies')
       .then((res) => res.json())
-      .then((data) => {
-        setCompanies(data.companies || []);
+      .then((json) => {
+        const payload = json.data ?? json;
+        setCompanies(payload.companies || []);
         setLoadingCompanies(false);
       })
       .catch(() => setLoadingCompanies(false));
@@ -155,8 +156,9 @@ export default function RegisterPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed to create company');
-        companyIdToSend = data.company.id;
-        setCreatedCompany({ name: data.company.name, code: data.company.code });
+        const payload = data.data ?? data;
+        companyIdToSend = payload.company.id;
+        setCreatedCompany({ name: payload.company.name, code: payload.company.code });
       } else {
         const company = companies.find((c) => c.id === companyIdToSend);
         if (company) {
@@ -307,8 +309,8 @@ export default function RegisterPage() {
                                 <span className="font-mono bg-slate-100 px-1.5 py-0.5 rounded">
                                   {company.code}
                                 </span>{' '}
-                                · {company.industry || 'General'} · {company._count.users} member
-                                {company._count.users !== 1 ? 's' : ''}
+                                · {company.industry || 'General'} · {company.userCount} member
+                                {company.userCount !== 1 ? 's' : ''}
                               </p>
                             </div>
                             {formData.selectedCompanyId === company.id && (
