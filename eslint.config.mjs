@@ -7,6 +7,7 @@ export default tseslint.config(
       '.next/**',
       'out/**',
       'build/**',
+      'coverage/**',
       'node_modules/**',
       'src/generated/**',
       '*.config.mjs',

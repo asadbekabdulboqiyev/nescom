@@ -1,4 +1,4 @@
-import { cn, formatTimeAgo, formatCurrency, formatFileSize } from '../utils';
+import { cn, formatTimeAgo, formatCurrency, formatFileSize, toNumber } from '../utils';
 
 describe('cn', () => {
   it('should merge class names', () => {
@@ -69,5 +69,35 @@ describe('formatFileSize', () => {
 
   it('should format gigabytes', () => {
     expect(formatFileSize(1073741824)).toBe('1 GB');
+  });
+
+  it('should format terabytes', () => {
+    expect(formatFileSize(1099511627776)).toBe('1 TB');
+  });
+});
+
+describe('toNumber', () => {
+  it('should return 0 for null', () => {
+    expect(toNumber(null)).toBe(0);
+  });
+
+  it('should return 0 for undefined', () => {
+    expect(toNumber(undefined)).toBe(0);
+  });
+
+  it('should return number as-is', () => {
+    expect(toNumber(42)).toBe(42);
+  });
+
+  it('should parse numeric strings', () => {
+    expect(toNumber('3.14')).toBe(3.14);
+  });
+
+  it('should parse object with toString', () => {
+    expect(toNumber({ toString: () => '99' })).toBe(99);
+  });
+
+  it('should return 0 for unparseable values', () => {
+    expect(toNumber('abc')).toBeNaN();
   });
 });

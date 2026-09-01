@@ -107,4 +107,14 @@ describe('hasAnyPermission', () => {
   it('should handle empty permissions array', () => {
     expect(hasAnyPermission('CEO', [])).toBe(false);
   });
+
+  it('should return false for unknown role', () => {
+    // @ts-expect-error - testing unknown role edge case
+    expect(hasPermission('NONEXISTENT', 'employees:read')).toBe(false);
+  });
+
+  it('should return false for any permission on unknown role', () => {
+    // @ts-expect-error - testing unknown role edge case
+    expect(hasAnyPermission('UNKNOWN', ['employees:read'])).toBe(false);
+  });
 });

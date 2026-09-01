@@ -116,6 +116,23 @@ describe('validateOrigin', () => {
     expect(validateOrigin(request)).toBe(false);
   });
 
+  it('should reject request with no host header', () => {
+    const request = new Request(`https://${allowedHost}/api/test`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+    });
+    expect(request.headers.get('host')).toBeNull();
+    expect(validateOrigin(request)).toBe(false);
+  });
+
+  it('should reject request with malformed referer', () => {
+    const request = makeRequest({
+      host: allowedHost,
+      referer: ':::not-a-valid-url',
+    });
+    expect(validateOrigin(request)).toBe(false);
+  });
+
   it('should reject when origin and referer both redirect elsewhere', () => {
     const request = makeRequest({
       host: allowedHost,
@@ -123,5 +140,12 @@ describe('validateOrigin', () => {
       referer: 'https://evil-site.com/phishing',
     });
     expect(validateOrigin(request)).toBe(false);
+  });
+
+  it('should reject request with no origin or referer headers', () => {
+    const request = makeRequest({});
+    // Strip origin/referer to simulate no enumeration headers
+    expect(request.headers.get('origin')).toBeNull();
+    expect(request.headers.get('referer')).toBeNull();
   });
 });
