@@ -277,7 +277,7 @@ nescom/
 | Layer                  | Protection                                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
 | **Authentication**     | JWT via `jose` (HS256), `httpOnly` cookies, 7-day expiry                                                   |
-| **Edge Proxy**        | `src/proxy.ts` — JWT verification, PENDING-user blocking, `x-user-id`/`x-company-id` header injection |
+| **Edge Proxy**         | `src/proxy.ts` — JWT verification, PENDING-user blocking, `x-user-id`/`x-company-id` header injection      |
 | **Rate Limiting**      | 3 tiers: global (100/min), API (200/min per path), login brute-force (5 per 15 min per IP+email)           |
 | **CSRF**               | Origin/referer validation on all non-GET API requests                                                      |
 | **File Uploads**       | Extension whitelist, MIME validation, random `crypto.randomBytes` prefix, path-traversal guard             |
