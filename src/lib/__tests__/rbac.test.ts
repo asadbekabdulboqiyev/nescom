@@ -1,6 +1,7 @@
 import { Role } from '../roles';
 import {
   canManageUsers,
+  canAssignRole,
   canManageTasks,
   canManageSalary,
   canViewSalary,
@@ -124,6 +125,42 @@ describe('canManageCompany', () => {
 
   it('should return false for HR', () => {
     expect(canManageCompany('HR')).toBe(false);
+  });
+});
+
+describe('canAssignRole', () => {
+  it('permits CEO to assign any role', () => {
+    expect(canAssignRole('CEO', 'CEO')).toBe(true);
+    expect(canAssignRole('CEO', 'MANAGER')).toBe(true);
+    expect(canAssignRole('CEO', 'INTERN')).toBe(true);
+  });
+
+  it('prevents MANAGER from assigning or promoting to MANAGER', () => {
+    expect(canAssignRole('MANAGER', 'MANAGER')).toBe(false);
+  });
+
+  it('prevents MANAGER from assigning to CEO', () => {
+    expect(canAssignRole('MANAGER', 'CEO')).toBe(false);
+  });
+
+  it('prevents HR from assigning to MANAGER or CEO', () => {
+    expect(canAssignRole('HR', 'MANAGER')).toBe(false);
+    expect(canAssignRole('HR', 'CEO')).toBe(false);
+  });
+
+  it('permits MANAGER to assign a lower-ranked role', () => {
+    expect(canAssignRole('MANAGER', 'DEVELOPER')).toBe(true);
+    expect(canAssignRole('MANAGER', 'INTERN')).toBe(true);
+  });
+
+  it('permits HR to assign a lower-ranked role', () => {
+    expect(canAssignRole('HR', 'DEVELOPER')).toBe(true);
+    expect(canAssignRole('HR', 'INTERN')).toBe(true);
+  });
+
+  it('prevents equal-ranked non-CEO role assignment', () => {
+    // HR cannot assign another HR (same rank)
+    expect(canAssignRole('HR', 'HR')).toBe(false);
   });
 });
 

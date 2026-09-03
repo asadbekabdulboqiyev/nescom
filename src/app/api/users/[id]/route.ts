@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateUserSchema, validateRequest } from '@/lib/validation';
-import { canManageUsers } from '@/lib/rbac';
+import { canManageUsers, canAssignRole } from '@/lib/rbac';
 import { Role } from '@/lib/roles';
 import { handleApiError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
@@ -128,6 +128,15 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const { name, email, role, phone, salary, salaryDueDate, startDate, avatar } = validation.data;
+
+    // P0 privilege escalation guard: a MANAGER/HR editing a user must not be
+    // able to promote them to CEO or another MANAGER. Only the CEO may.
+    if (role && role !== existingUser.role && !canAssignRole(userRole, role)) {
+      return NextResponse.json<ApiResponse>(
+        { success: false, error: 'You do not have permission to assign this role' },
+        { status: 403 }
+      );
+    }
 
     const user = await prisma.user.update({
       where: { id },
