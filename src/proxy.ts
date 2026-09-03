@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
+import { isCsrfSafe as isCsrfSafeImpl } from '@/lib/csrf';
 
 function getJwtSecret(): Uint8Array {
   if (!process.env.JWT_SECRET) {
@@ -90,41 +91,11 @@ function isApiRateLimited(key: string): boolean {
   return entry.count > API_RATE_LIMIT_MAX;
 }
 
-function isCsrfSafe(request: NextRequest): boolean {
-  const method = request.method;
-  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
-    return true;
-  }
-
-  const origin = request.headers.get('origin');
-  const host = request.headers.get('host');
-
-  if (origin && host) {
-    try {
-      const originUrl = new URL(origin);
-      if (originUrl.host !== host) {
-        const referer = request.headers.get('referer');
-        if (referer) {
-          try {
-            const refererUrl = new URL(referer);
-            if (refererUrl.host === host) {
-              return true;
-            }
-          } catch {}
-        }
-        return false;
-      }
-    } catch {
-      return false;
-    }
-  }
-
-  const contentType = request.headers.get('content-type') || '';
-  if (contentType.includes('application/json')) {
-    return true;
-  }
-
-  return false;
+export function isCsrfSafe(request: NextRequest): boolean {
+  return isCsrfSafeImpl({
+    method: request.method,
+    headers: request.headers,
+  });
 }
 
 function isPublicApi(pathname: string, method: string): boolean {
@@ -214,11 +185,22 @@ export default async function proxy(request: NextRequest) {
         );
       }
 
-      const response = NextResponse.next();
-      response.headers.set('x-user-id', payload.userId as string);
-      response.headers.set('x-user-email', payload.email as string);
-      response.headers.set('x-company-id', payload.companyId as string);
-      response.headers.set('x-user-role', payload.role as string);
+      // P0 SAFETY: strip any client-supplied trust headers so a caller
+      // cannot spoof x-user-id / x-company-id / x-user-role. Identity is
+      // derived solely from the verified JWT below.
+      const trustedHeaders = new Headers(request.headers);
+      for (const h of ['x-user-id', 'x-user-email', 'x-company-id', 'x-user-role']) {
+        trustedHeaders.delete(h);
+      }
+
+      trustedHeaders.set('x-user-id', payload.userId as string);
+      trustedHeaders.set('x-user-email', payload.email as string);
+      trustedHeaders.set('x-company-id', payload.companyId as string);
+      trustedHeaders.set('x-user-role', payload.role as string);
+
+      // Next.js 16: request headers must be passed via the `request` option
+      // (NOT response.headers.set, which only affects the client response).
+      const response = NextResponse.next({ request: { headers: trustedHeaders } });
       return response;
     } catch {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
