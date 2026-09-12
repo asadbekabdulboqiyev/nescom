@@ -128,6 +128,28 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NODE_ENV="development"
 ```
 
+### Teno Event Protocol (TEP)
+
+nescom can receive signed TEP events at `POST /api/v1/events/push` and expose
+their processing status at `GET /api/v1/events/{eventId}/status`. It can also
+emit events to an upstream TEP consumer via `emitTepEvent()`.
+
+TEP is optional — when `TEP_SECRET` is not set (or is shorter than 32 bytes),
+the endpoints respond `503` and `emitTepEvent()` becomes a safe no-op.
+
+```env
+# TEP (optional)
+TEP_SECRET="at-least-32-characters-shared-hmac-secret"
+TEP_KEY="nescom"
+TEP_SOURCE="nescom"
+# Where nescom pushes events (only needed if emitTepEvent is used)
+TEP_PUSH_URL="http://consumer-host/api/v1/events/push"
+```
+
+> TEP handles idempotency: retries with the same `idempotency_key` return the
+> original result instead of processing the event twice. See
+> [teno-event-protocol](https://github.com/asadbekabdulboqiyev/teno-event-protocol).
+
 ---
 
 ## 📁 Project Structure
