@@ -1,34 +1,34 @@
 # Nescom API Documentation
 
-Barcha API endpoint'lari `/api/` prefix bilan ishlaydi.
+All API endpoints operate under the `/api/` prefix.
 
-## Autentifikatsiya
+## Authentication
 
-API endpoint'lari orqali ishlash uchun JWT token talab qilinadi. Token `cookie` yoki `Authorization` header orqali yuborilishi kerak:
+A JWT token is required to use the API endpoints. The token must be sent via a `cookie` or the `Authorization` header:
 
 ```
 Authorization: Bearer <token>
 ```
 
-Yoki cookie orqali avtomatik yuboriladi.
+Or it is sent automatically via a cookie.
 
 ---
 
-## Auth (Autentifikatsiya)
+## Auth (Authentication)
 
 ### POST /api/auth/register
 
-Ro'yxatdan o'tish. Yangi foydalanuvchi yaratadi.
+Registers a new account. Creates a new user.
 
-**Auth talab:** Yo'q
+**Auth required:** No
 
 **Request body:**
 
 ```json
 {
   "email": "user@example.com",
-  "password": "parol123",
-  "name": "Ism Familiya",
+  "password": "password123",
+  "name": "First Last",
   "companyId": "optional-company-id"
 }
 ```
@@ -40,34 +40,34 @@ Ro'yxatdan o'tish. Yangi foydalanuvchi yaratadi.
   "user": {
     "id": "cuid",
     "email": "user@example.com",
-    "name": "Ism Familiya",
+    "name": "First Last",
     "role": "CEO"
   },
   "token": "jwt-token"
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Validatsiya xatosi
-- `409` — Email allaqachon ro'yxatdan o'tgan
-- `404` — Kompaniya topilmadi
-- `500` — Server xatosi
+- `400` — Validation error
+- `409` — Email is already registered
+- `404` — Company not found
+- `500` — Internal server error
 
 ---
 
 ### POST /api/auth/login
 
-Tizimga kirish.
+Logs the user in.
 
-**Auth talab:** Yo'q
+**Auth required:** No
 
 **Request body:**
 
 ```json
 {
   "email": "user@example.com",
-  "password": "parol123"
+  "password": "password123"
 }
 ```
 
@@ -79,28 +79,28 @@ Tizimga kirish.
   "user": {
     "id": "cuid",
     "email": "user@example.com",
-    "name": "Ism Familiya",
+    "name": "First Last",
     "role": "CEO",
     "companyId": "company-id"
   }
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Validatsiya xatosi
-- `401` — Email yoki parol noto'g'ri
-- `500` — Server xatosi
+- `400` — Validation error
+- `401` — Invalid email or password
+- `500` — Internal server error
 
 ---
 
 ### POST /api/auth/logout
 
-Tizimdan chiqish. Cookie'ni tozalaydi.
+Logs the user out. Clears the cookie.
 
-**Auth talab:** Yo'q
+**Auth required:** No
 
-**Request body:** Bo'sh
+**Request body:** Empty
 
 **Response (200):**
 
@@ -112,21 +112,21 @@ Tizimdan chiqish. Cookie'ni tozalaydi.
 
 ---
 
-## Tasks (Vazifalar)
+## Tasks
 
 ### GET /api/tasks
 
-Vazifalar ro'yxatini olish.
+Gets the list of tasks.
 
-**Auth talab:** Ha (x-company-id header)
+**Auth required:** Yes (x-company-id header)
 
-**Query parametrlari:**
+**Query parameters:**
 
-| Parametr   | Majburiy | Tavsif                           |
+| Parameter  | Required | Description                      |
 | ---------- | -------- | -------------------------------- |
-| status     | Yo'q     | TODO, IN_PROGRESS, DONE, BLOCKED |
-| priority   | Yo'q     | LOW, MEDIUM, HIGH, URGENT        |
-| assigneeId | Yo'q     | Tayinlangan foydalanuvchi ID     |
+| status     | No       | TODO, IN_PROGRESS, DONE, BLOCKED |
+| priority   | No       | LOW, MEDIUM, HIGH, URGENT        |
+| assigneeId | No       | Assigned user ID                 |
 
 **Response (200):**
 
@@ -135,15 +135,15 @@ Vazifalar ro'yxatini olish.
   "tasks": [
     {
       "id": "cuid",
-      "title": "Vazifa nomi",
-      "description": "Tavsif",
+      "title": "Task title",
+      "description": "Description",
       "status": "TODO",
       "priority": "MEDIUM",
       "dueDate": "2026-07-25T00:00:00.000Z",
       "tags": ["frontend"],
       "createdAt": "2026-07-19T00:00:00.000Z",
-      "assignee": { "id": "cuid", "name": "Ism", "avatar": null },
-      "creator": { "id": "cuid", "name": "Ism", "avatar": null }
+      "assignee": { "id": "cuid", "name": "First", "avatar": null },
+      "creator": { "id": "cuid", "name": "First", "avatar": null }
     }
   ]
 }
@@ -153,21 +153,21 @@ Vazifalar ro'yxatini olish.
 
 ### POST /api/tasks
 
-Yangi vazifa yaratish.
+Creates a new task.
 
-**Auth talab:** Ha (x-company-id, x-user-id, x-user-role)
-**Ruxsat:** CEO, MANAGER, DEVELOPER
+**Auth required:** Yes (x-company-id, x-user-id, x-user-role)
+**Permission:** CEO, MANAGER, DEVELOPER
 
 **Request body:**
 
 ```json
 {
-  "title": "Vazifa nomi",
-  "description": "Tavsif (ixtiyoriy)",
+  "title": "Task title",
+  "description": "Description (optional)",
   "status": "TODO",
   "priority": "MEDIUM",
   "dueDate": "2026-07-25",
-  "assigneeId": "user-id (ixtiyoriy)"
+  "assigneeId": "user-id (optional)"
 }
 ```
 
@@ -177,95 +177,95 @@ Yangi vazifa yaratish.
 {
   "task": {
     "id": "cuid",
-    "title": "Vazifa nomi",
+    "title": "Task title",
     "status": "TODO",
     "priority": "MEDIUM",
-    "assignee": { "id": "cuid", "name": "Ism", "avatar": null },
-    "creator": { "id": "cuid", "name": "Ism", "avatar": null }
+    "assignee": { "id": "cuid", "name": "First", "avatar": null },
+    "creator": { "id": "cuid", "name": "First", "avatar": null }
   }
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Validatsiya xatosi
-- `401` — Ruxsatsiz kirish
-- `403` — Ruxsat yo'q
-- `500` — Server xatosi
+- `400` — Validation error
+- `401` — Unauthorized
+- `403` — Permission denied
+- `500` — Internal server error
 
 ---
 
 ### GET /api/tasks/[id]
 
-Bitta vazifani olish.
+Gets a single task.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Response (200):**
 
 ```json
 {
   "id": "cuid",
-  "title": "Vazifa nomi",
-  "description": "Tavsif",
+  "title": "Task title",
+  "description": "Description",
   "status": "TODO",
   "priority": "MEDIUM",
   "dueDate": "2026-07-25T00:00:00.000Z",
   "tags": [],
-  "assignee": { "id": "cuid", "name": "Ism", "avatar": null },
-  "creator": { "id": "cuid", "name": "Ism", "avatar": null }
+  "assignee": { "id": "cuid", "name": "First", "avatar": null },
+  "creator": { "id": "cuid", "name": "First", "avatar": null }
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `404` — Vazifa topilmadi
+- `404` — Task not found
 
 ---
 
 ### PUT /api/tasks/[id]
 
-Vazifani yangilash.
+Updates a task.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER, DEVELOPER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER, DEVELOPER
 
-**Request body:** (POST bilan bir xil, barcha maydonlar ixtiyoriy)
+**Request body:** (Same as POST; all fields optional)
 
-**Response (200):** Yangilangan vazifa
+**Response (200):** Updated task
 
 ---
 
 ### DELETE /api/tasks/[id]
 
-Vazifani o'chirish.
+Deletes a task.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER, DEVELOPER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER, DEVELOPER
 
 **Response (200):**
 
 ```json
 {
-  "message": "Vazifa o'chirildi"
+  "message": "Task deleted"
 }
 ```
 
 ---
 
-## Messages (Xabarlar)
+## Messages
 
 ### GET /api/messages
 
-Xabarlar ro'yxatini olish.
+Gets the list of messages.
 
-**Auth talab:** Ha (x-company-id, x-user-id)
+**Auth required:** Yes (x-company-id, x-user-id)
 
-**Query parametrlari:**
+**Query parameters:**
 
-| Parametr | Majburiy | Tavsif                             |
-| -------- | -------- | ---------------------------------- |
-| userId   | Yo'q     | Muayyan foydalanuvchi bilan suhbat |
+| Parameter | Required | Description                       |
+| --------- | -------- | --------------------------------- |
+| userId    | No       | Conversation with a specific user |
 
 **Response (200):**
 
@@ -274,11 +274,11 @@ Xabarlar ro'yxatini olish.
   "messages": [
     {
       "id": "cuid",
-      "content": "Xabar matni",
+      "content": "Message content",
       "read": false,
       "createdAt": "2026-07-19T00:00:00.000Z",
-      "sender": { "id": "cuid", "name": "Ism", "avatar": null },
-      "receiver": { "id": "cuid", "name": "Ism", "avatar": null }
+      "sender": { "id": "cuid", "name": "First", "avatar": null },
+      "receiver": { "id": "cuid", "name": "First", "avatar": null }
     }
   ]
 }
@@ -288,17 +288,17 @@ Xabarlar ro'yxatini olish.
 
 ### POST /api/messages
 
-Xabar yuborish.
+Sends a message.
 
-**Auth talab:** Ha (x-company-id, x-user-id, x-user-role)
-**Ruxsat:** Barcha rollar
+**Auth required:** Yes (x-company-id, x-user-id, x-user-role)
+**Permission:** All roles
 
 **Request body:**
 
 ```json
 {
-  "receiverId": "qabul-qiluvchi-id",
-  "content": "Xabar matni"
+  "receiverId": "receiver-id",
+  "content": "Message content"
 }
 ```
 
@@ -308,9 +308,9 @@ Xabar yuborish.
 {
   "message": {
     "id": "cuid",
-    "content": "Xabar matni",
-    "sender": { "id": "cuid", "name": "Ism", "avatar": null },
-    "receiver": { "id": "cuid", "name": "Ism", "avatar": null }
+    "content": "Message content",
+    "sender": { "id": "cuid", "name": "First", "avatar": null },
+    "receiver": { "id": "cuid", "name": "First", "avatar": null }
   }
 }
 ```
@@ -319,9 +319,9 @@ Xabar yuborish.
 
 ### GET /api/messages/conversations
 
-Suhbatlar ro'yxatini olish.
+Gets the list of conversations.
 
-**Auth talab:** Ha (x-company-id, x-user-id)
+**Auth required:** Yes (x-company-id, x-user-id)
 
 **Response (200):**
 
@@ -329,8 +329,8 @@ Suhbatlar ro'yxatini olish.
 {
   "conversations": [
     {
-      "user": { "id": "cuid", "name": "Ism", "avatar": null },
-      "lastMessage": "Oxirgi xabar",
+      "user": { "id": "cuid", "name": "First", "avatar": null },
+      "lastMessage": "Last message",
       "lastMessageAt": "2026-07-19T00:00:00.000Z",
       "unread": 3
     }
@@ -340,13 +340,13 @@ Suhbatlar ro'yxatini olish.
 
 ---
 
-## Users (Foydalanuvchilar)
+## Users
 
 ### GET /api/users
 
-Xodimlar ro'yxatini olish.
+Gets the list of employees.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Response (200):**
 
@@ -356,7 +356,7 @@ Xodimlar ro'yxatini olish.
     {
       "id": "cuid",
       "email": "user@example.com",
-      "name": "Ism Familiya",
+      "name": "First Last",
       "role": "DEVELOPER",
       "avatar": null,
       "phone": "+998901234567",
@@ -373,17 +373,17 @@ Xodimlar ro'yxatini olish.
 
 ### POST /api/users
 
-Yangi xodim qo'shish.
+Adds a new employee.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER
 
 **Request body:**
 
 ```json
 {
   "email": "newuser@example.com",
-  "name": "Yangi Foydalanuvchi",
+  "name": "New User",
   "role": "DEVELOPER",
   "phone": "+998901234567",
   "salary": 5000000,
@@ -392,20 +392,20 @@ Yangi xodim qo'shish.
 }
 ```
 
-**Response (201):** Yangilangan foydalanuvchi
+**Response (201):** Updated user
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Validatsiya xatosi, email/ism/rol majburiy
-- `403` — Ruxsat yo'q
+- `400` — Validation error; email, name, and role are required
+- `403` — Permission denied
 
 ---
 
 ### GET /api/users/[id]
 
-Bitta xodimni olish.
+Gets a single employee.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Response (200):**
 
@@ -413,9 +413,9 @@ Bitta xodimni olish.
 {
   "id": "cuid",
   "email": "user@example.com",
-  "name": "Ism Familiya",
+  "name": "First Last",
   "role": "DEVELOPER",
-  "company": { "id": "cuid", "name": "Kompaniya" }
+  "company": { "id": "cuid", "name": "Company" }
 }
 ```
 
@@ -423,29 +423,29 @@ Bitta xodimni olish.
 
 ### PUT /api/users/[id]
 
-Xodimni yangilash.
+Updates an employee.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER
 
-**Request body:** (POST bilan bir xil, barcha maydonlar ixtiyoriy)
+**Request body:** (Same as POST; all fields optional)
 
-**Response (200):** Yangilangan foydalanuvchi
+**Response (200):** Updated user
 
 ---
 
 ### DELETE /api/users/[id]
 
-Xodimni o'chirish.
+Deletes an employee.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER
 
 **Response (200):**
 
 ```json
 {
-  "message": "Foydalanuvchi o'chirildi"
+  "message": "User deleted"
 }
 ```
 
@@ -453,9 +453,9 @@ Xodimni o'chirish.
 
 ### GET /api/users/me
 
-Joriy foydalanuvchi ma'lumotlarini olish.
+Gets the current user's information.
 
-**Auth talab:** Ha (Bearer token yoki cookie)
+**Auth required:** Yes (Bearer token or cookie)
 
 **Response (200):**
 
@@ -463,7 +463,7 @@ Joriy foydalanuvchi ma'lumotlarini olish.
 {
   "user": {
     "id": "cuid",
-    "name": "Ism Familiya",
+    "name": "First Last",
     "email": "user@example.com",
     "role": "CEO",
     "companyId": "company-id",
@@ -476,25 +476,25 @@ Joriy foydalanuvchi ma'lumotlarini olish.
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `401` — Token yo'q yoki noto'g'ri
-- `404` — Foydalanuvchi topilmadi
+- `401` — Token missing or invalid
+- `404` — User not found
 
 ---
 
 ### POST /api/users/me/change-password
 
-Parolni o'zgartirish.
+Changes the user's password.
 
-**Auth talab:** Ha (Bearer token yoki cookie)
+**Auth required:** Yes (Bearer token or cookie)
 
 **Request body:**
 
 ```json
 {
-  "currentPassword": "joriy-parol",
-  "newPassword": "yangi-parol"
+  "currentPassword": "current-password",
+  "newPassword": "new-password"
 }
 ```
 
@@ -502,33 +502,33 @@ Parolni o'zgartirish.
 
 ```json
 {
-  "message": "Parol muvaffaqiyatli o'zgartirildi"
+  "message": "Password changed successfully"
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Joriy parol noto'g'ri, yangi parol 6 ta belgidan kam
-- `401` — Token noto'g'ri
-- `404` — Foydalanuvchi topilmadi
+- `400` — Current password is incorrect, or the new password is fewer than 6 characters
+- `401` — Invalid token
+- `404` — User not found
 
 ---
 
-## Salary (Oylik)
+## Salary
 
 ### GET /api/salary
 
-Oyliklar ro'yxatini olish.
+Gets the list of salaries.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO, MANAGER
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO, MANAGER
 
-**Query parametrlari:**
+**Query parameters:**
 
-| Parametr | Majburiy | Tavsif                 |
-| -------- | -------- | ---------------------- |
-| userId   | Yo'q     | Muayyan foydalanuvchi  |
-| status   | Yo'q     | PENDING, PAID, OVERDUE |
+| Parameter | Required | Description            |
+| --------- | -------- | ---------------------- |
+| userId    | No       | A specific user        |
+| status    | No       | PENDING, PAID, OVERDUE |
 
 **Response (200):**
 
@@ -543,7 +543,7 @@ Oyliklar ro'yxatini olish.
       "paidAt": null,
       "bonus": 0,
       "deductions": 0,
-      "user": { "id": "cuid", "name": "Ism", "avatar": null }
+      "user": { "id": "cuid", "name": "First", "avatar": null }
     }
   ]
 }
@@ -553,45 +553,45 @@ Oyliklar ro'yxatini olish.
 
 ### POST /api/salary
 
-Yangi oylik yaratish.
+Creates a new salary record.
 
-**Auth talab:** Ha (x-company-id, x-user-role)
-**Ruxsat:** CEO
+**Auth required:** Yes (x-company-id, x-user-role)
+**Permission:** CEO
 
 **Request body:**
 
 ```json
 {
-  "userId": "foydalanuvchi-id",
+  "userId": "user-id",
   "amount": 5000000,
   "dueDate": "2026-07-25"
 }
 ```
 
-**Response (201):** Yaratilgan oylik
+**Response (201):** Created salary record
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Validatsiya xatosi
-- `403` — Ruxsat yo'q
+- `400` — Validation error
+- `403` — Permission denied
 
 ---
 
 ### GET /api/salary/[id]
 
-Bitta oylikni olish.
+Gets a single salary record.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
-**Response (200):** Oylik ma'lumotlari
+**Response (200):** Salary information
 
 ---
 
 ### PUT /api/salary/[id]
 
-Oylikni yangilash.
+Updates a salary record.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Request body:**
 
@@ -604,15 +604,15 @@ Oylikni yangilash.
 }
 ```
 
-**Response (200):** Yangilangan oylik
+**Response (200):** Updated salary record
 
 ---
 
 ### POST /api/salary/pay/[id]
 
-Oylikni to'langan deb belgilash.
+Marks a salary record as paid.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Response (200):**
 
@@ -626,13 +626,13 @@ Oylikni to'langan deb belgilash.
 
 ---
 
-## Companies (Kompaniyalar)
+## Companies
 
 ### GET /api/companies
 
-Kompaniyalar ro'yxatini olish.
+Gets the list of companies.
 
-**Auth talab:** Yo'q
+**Auth required:** No
 
 **Response (200):**
 
@@ -641,9 +641,9 @@ Kompaniyalar ro'yxatini olish.
   "companies": [
     {
       "id": "cuid",
-      "name": "Kompaniya nomi",
+      "name": "Company name",
       "industry": "IT",
-      "description": "Tavsif",
+      "description": "Description",
       "_count": { "users": 10 }
     }
   ]
@@ -654,59 +654,59 @@ Kompaniyalar ro'yxatini olish.
 
 ### POST /api/companies
 
-Kompaniya yaratish.
+Creates a company.
 
-**Auth talab:** Yo'q
+**Auth required:** No
 
 **Request body:**
 
 ```json
 {
-  "name": "Yangi Kompaniya",
+  "name": "New Company",
   "industry": "IT",
-  "description": "Kompaniya tavsifi"
+  "description": "Company description"
 }
 ```
 
-**Response (201):** Yaratilgan kompaniya
+**Response (201):** Created company
 
 ---
 
 ### PUT /api/companies
 
-Kompaniyani yangilash.
+Updates a company.
 
-**Auth talab:** Ha (x-user-role)
-**Ruxsat:** CEO
+**Auth required:** Yes (x-user-role)
+**Permission:** CEO
 
 **Request body:**
 
 ```json
 {
-  "id": "kompaniya-id",
-  "name": "Yangi nom",
+  "id": "company-id",
+  "name": "New name",
   "industry": "FinTech",
-  "description": "Yangi tavsif"
+  "description": "New description"
 }
 ```
 
-**Response (200):** Yangilangan kompaniya
+**Response (200):** Updated company
 
 ---
 
-## Notifications (Ogohlantirishlar)
+## Notifications
 
 ### GET /api/notifications
 
-Ogohlantishlar ro'yxatini olish.
+Gets the list of notifications.
 
-**Auth talab:** Ha (x-company-id, x-user-id)
+**Auth required:** Yes (x-company-id, x-user-id)
 
-**Query parametrlari:**
+**Query parameters:**
 
-| Parametr   | Majburiy | Tavsif                       |
-| ---------- | -------- | ---------------------------- |
-| unreadOnly | Yo'q     | Faqat o'qilmaganlar (`true`) |
+| Parameter  | Required | Description                |
+| ---------- | -------- | -------------------------- |
+| unreadOnly | No       | Only unread items (`true`) |
 
 **Response (200):**
 
@@ -715,8 +715,8 @@ Ogohlantishlar ro'yxatini olish.
   "notifications": [
     {
       "id": "cuid",
-      "title": "Sarlavha",
-      "message": "Xabar matni",
+      "title": "Title",
+      "message": "Message content",
       "type": "TASK",
       "read": false,
       "link": "/tasks/123",
@@ -731,30 +731,30 @@ Ogohlantishlar ro'yxatini olish.
 
 ### POST /api/notifications
 
-Ogohlantirish yaratish.
+Creates a notification.
 
-**Auth talab:** Ha (x-company-id)
+**Auth required:** Yes (x-company-id)
 
 **Request body:**
 
 ```json
 {
-  "userId": "foydalanuvchi-id",
-  "title": "Ogohlantirish sarlavhasi",
-  "message": "Ogohlantirish matni",
+  "userId": "user-id",
+  "title": "Notification title",
+  "message": "Notification message",
   "type": "TASK"
 }
 ```
 
-**Response (201):** Yaratilgan ogohlantirish
+**Response (201):** Created notification
 
 ---
 
 ### PATCH /api/notifications
 
-Ogohlantirishni o'qilgan deb belgilash.
+Marks a notification as read.
 
-**Auth talab:** Ha (x-company-id, x-user-id)
+**Auth required:** Yes (x-company-id, x-user-id)
 
 **Request body (readAll):**
 
@@ -783,21 +783,21 @@ Ogohlantirishni o'qilgan deb belgilash.
 
 ---
 
-## Upload (Yuklash)
+## Upload
 
 ### POST /api/upload
 
-Fayl yuklash.
+Uploads a file.
 
-**Auth talab:** Ha (x-company-id, x-user-id)
+**Auth required:** Yes (x-company-id, x-user-id)
 
 **Request body:** `multipart/form-data`
 
-| Maydon | Tur  | Tavsif             |
-| ------ | ---- | ------------------ |
-| file   | File | Yuklanayotgan fayl |
+| Field | Type | Description    |
+| ----- | ---- | -------------- |
+| file  | File | File to upload |
 
-**Ruxsat etilgan turlar:**
+**Allowed types:**
 
 - image/jpeg, image/png, image/gif, image/webp
 - application/pdf
@@ -805,46 +805,46 @@ Fayl yuklash.
 - application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
 - text/plain
 
-**Maksimal hajm:** 10MB
+**Maximum size:** 10MB
 
 **Response (200):**
 
 ```json
 {
   "url": "/uploads/1234567890-abc123.jpg",
-  "name": "rasm.jpg",
+  "name": "image.jpg",
   "size": 1024000,
   "type": "image/jpeg"
 }
 ```
 
-**Xatoliklar:**
+**Errors:**
 
-- `400` — Fayl hajmi 10MB dan katta yoki ruxsatsiz tur
-- `401` — Ruxsatsiz kirish
-- `500` — Yuklash xatosi
+- `400` — File is larger than 10MB or the type is not allowed
+- `401` — Unauthorized
+- `500` — Upload error
 
 ---
 
-## Xatolik formatlari
+## Error formats
 
-Barcha xatoliklar quyidagi formatda qaytariladi:
+All errors are returned in the following format:
 
 ```json
 {
-  "error": "Xabar matni"
+  "error": "Message content"
 }
 ```
 
-**Umumiy status kodlari:**
+**Common status codes:**
 
-| Kod | Ma'nosi                                     |
-| --- | ------------------------------------------- |
-| 200 | Muvaffaqiyatli                              |
-| 201 | Yaratildi                                   |
-| 400 | Validatsiya xatosi                          |
-| 401 | Autentifikatsiya xatosi                     |
-| 403 | Ruxsat yo'q                                 |
-| 404 | Topilmadi                                   |
-| 409 | Konflikt (masalan, email allaqachon mavjud) |
-| 500 | Server xatosi                               |
+| Code | Meaning                               |
+| ---- | ------------------------------------- |
+| 200  | Success                               |
+| 201  | Created                               |
+| 400  | Validation error                      |
+| 401  | Authentication error                  |
+| 403  | Permission denied                     |
+| 404  | Not found                             |
+| 409  | Conflict (e.g., email already exists) |
+| 500  | Internal server error                 |

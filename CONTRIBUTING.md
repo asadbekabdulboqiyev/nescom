@@ -1,21 +1,21 @@
-# Nescom'ga Hissa Qo'shish
+# Contributing to Nescom
 
-Loyihaga hissa qo'shganingiz uchun rahmat!
+Thank you for contributing to the project!
 
 ## Development Setup
 
-### 1. Repositoriyani Fork qiling
+### 1. Fork the repository
 
-GitHub'da repositories'ni fork qiling.
+Fork the repository on GitHub.
 
-### 2. Clone qiling
+### 2. Clone the repository
 
 ```bash
 git clone https://github.com/your-username/company-hub.git
 cd company-hub
 ```
 
-### 3. Kutubxonalarni o'rnating
+### 3. Install dependencies
 
 ```bash
 npm install
@@ -27,9 +27,9 @@ npm install
 cp .env.example .env
 ```
 
-`.env` faylini to'ldiring (yukoridagi README ga qarang).
+Fill in the `.env` file (see the README above).
 
-### 5. Database sozlash
+### 5. Set up the database
 
 ```bash
 npx prisma migrate dev
@@ -47,19 +47,19 @@ npm run dev
 
 ### TypeScript
 
-- Barcha fayllar `.ts` yoki `.tsx` formatda bo'lishi kerak
-- `any` tipidan foydalanmang — aniq type yarating
-- Interface va type'lar `PascalCase` formatda
+- All files must be `.ts` or `.tsx`
+- Do not use `any` — create explicit types
+- Interfaces and types use `PascalCase`
 
 ```typescript
-// ✅ Yaxshi
+// ✅ Good
 interface User {
   id: string;
   name: string;
   email: string;
 }
 
-// ❌ Yomon
+// ❌ Bad
 interface user {
   id: any;
   name: any;
@@ -68,16 +68,16 @@ interface user {
 
 ### React Components
 
-- Functional components ishlating
-- Komponent nomlari `PascalCase` formatda
+- Use functional components
+- Component names use `PascalCase`
 
 ```typescript
-// ✅ Yaxshi
+// ✅ Good
 function UserProfile({ user }: { user: User }) {
   return <div>{user.name}</div>;
 }
 
-// ❌ Yomon
+// ❌ Bad
 function userProfile(props: any) {
   return <div>{props.user.name}</div>;
 }
@@ -85,61 +85,61 @@ function userProfile(props: any) {
 
 ### CSS/Tailwind
 
-- Tailwind CSS classes ishlating
-- Custom CSS fayllar yaratmang
-- Responsive design qo'llang
+- Use Tailwind CSS classes
+- Do not create custom CSS files
+- Apply responsive design
 
 ```tsx
-// ✅ Yaxshi
+// ✅ Good
 <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
 
-// ❌ Yomon
+// ❌ Bad
 <div style={{ display: 'flex', padding: '16px' }}>
 ```
 
 ### Naming Conventions
 
-| Element          | Format           | Misol                               |
-| ---------------- | ---------------- | ----------------------------------- |
-| Komponentlar     | PascalCase       | `UserProfile`, `TaskCard`           |
-| Funksiyalar      | camelCase        | `getUser`, `createTask`             |
-| O'zgaruvchilar   | camelCase        | `userId`, `taskList`                |
-| Konstantalar     | UPPER_SNAKE_CASE | `MAX_FILE_SIZE`, `API_URL`          |
-| Fayllar          | kebab-case       | `user-profile.tsx`, `task-card.tsx` |
-| API endpoint'lar | kebab-case       | `/api/users`, `/api/tasks`          |
+| Element       | Format           | Example                             |
+| ------------- | ---------------- | ----------------------------------- |
+| Components    | PascalCase       | `UserProfile`, `TaskCard`           |
+| Functions     | camelCase        | `getUser`, `createTask`             |
+| Variables     | camelCase        | `userId`, `taskList`                |
+| Constants     | UPPER_SNAKE_CASE | `MAX_FILE_SIZE`, `API_URL`          |
+| Files         | kebab-case       | `user-profile.tsx`, `task-card.tsx` |
+| API endpoints | kebab-case       | `/api/users`, `/api/tasks`          |
 
 ### Error Handling
 
 ```typescript
-// ✅ Yaxshi
+// ✅ Good
 try {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
-    return NextResponse.json({ error: 'Foydalanuvchi topilmadi' }, { status: 404 });
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
   return NextResponse.json({ user });
 } catch (error) {
   console.error('Get user error:', error);
-  return NextResponse.json({ error: 'Server xatosi yuz berdi' }, { status: 500 });
+  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 }
 ```
 
 ### Validation
 
-Zod schemas ishlating:
+Use Zod schemas:
 
 ```typescript
 import { z } from 'zod';
 
 const userSchema = z.object({
-  name: z.string().min(1, 'Ism kiritish shart'),
-  email: z.string().email("Email noto'g'ri formatda"),
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Invalid email format'),
 });
 ```
 
 ## Commit Message Format
 
-Har bir commit quyidagi formatda bo'lishi kerak:
+Each commit must follow this format:
 
 ```
 <type>(<scope>): <description>
@@ -149,19 +149,19 @@ Har bir commit quyidagi formatda bo'lishi kerak:
 [optional footer]
 ```
 
-### Type'lar
+### Types
 
-| Type       | Tavsif                | Misol                                     |
-| ---------- | --------------------- | ----------------------------------------- |
-| `feat`     | Yangi xususiyat       | `feat(tasks): add task assignment`        |
-| `fix`      | Xato tuzatish         | `fix(auth): fix login validation`         |
-| `docs`     | Hujjatlar             | `docs: update API documentation`          |
-| `style`    | Stil o'zgartirishlari | `style: fix button colors`                |
-| `refactor` | Refaktor              | `refactor(api): extract validation logic` |
-| `test`     | Testlar               | `test: add user API tests`                |
-| `chore`    | Texnik ishlar         | `chore: update dependencies`              |
+| Type       | Description       | Example                                   |
+| ---------- | ----------------- | ----------------------------------------- |
+| `feat`     | New feature       | `feat(tasks): add task assignment`        |
+| `fix`      | Bug fix           | `fix(auth): fix login validation`         |
+| `docs`     | Documentation     | `docs: update API documentation`          |
+| `style`    | Style changes     | `style: fix button colors`                |
+| `refactor` | Refactoring       | `refactor(api): extract validation logic` |
+| `test`     | Tests             | `test: add user API tests`                |
+| `chore`    | Maintenance tasks | `chore: update dependencies`              |
 
-### Misollar
+### Examples
 
 ```
 feat(tasks): add task filtering by priority
@@ -181,41 +181,41 @@ Fix validation to check email uniqueness before creating user.
 
 ## PR (Pull Request) Process
 
-### 1. Branch yarating
+### 1. Create a branch
 
 ```bash
 git checkout -b feature/your-feature-name
 ```
 
-Branch nomi formati:
+Branch name format:
 
-- `feature/` — yangi xususiyat
-- `fix/` — xato tuzatish
-- `docs/` — hujjatlar
-- `refactor/` — refaktor
+- `feature/` — new feature
+- `fix/` — bug fix
+- `docs/` — documentation
+- `refactor/` — refactoring
 
-### 2. O'zgartirishlarni qiling
+### 2. Make your changes
 
-- Kodda o'zgartirishlar qiling
-- Testlarni ishga tushiring
-- Lint xatolarini tuzating
+- Make code changes
+- Run the tests
+- Fix lint errors
 
-### 3. Commit qiling
+### 3. Commit
 
 ```bash
 git add .
 git commit -m "feat(scope): description"
 ```
 
-### 4. Push qiling
+### 4. Push
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-### 5. PR yarating
+### 5. Create a PR
 
-GitHub'da Pull Request yarating:
+Create a Pull Request on GitHub:
 
 **Title:** `<type>(<scope>): <description>`
 
@@ -224,43 +224,43 @@ GitHub'da Pull Request yarating:
 ```markdown
 ## Summary
 
-- Qisqacha tavsif
+- Brief description
 
 ## Changes
 
-- O'zgartirishlar ro'yxati
+- List of changes
 
 ## Testing
 
-- Qanday test qilindi
+- How it was tested
 
-## Screenshots (agar mavjud)
+## Screenshots (if applicable)
 
-- Rasm
+- Image
 ```
 
 ### 6. Review
 
-- Kamida 1 ta review kerak
-- CI/CD muvaffaqiyatli o'tishi kerak
-- Merge conflict yo'q bo'lishi kerak
+- At least 1 review is required
+- CI/CD must pass
+- There must be no merge conflicts
 
 ## Testing
 
-### Testlar ishga tushirish
+### Running tests
 
 ```bash
-# Barcha testlar
+# All tests
 npm test
 
-# Muayyan test fayl
+# A specific test file
 npm test -- user.test.ts
 
-# Coverage bilan
+# With coverage
 npm run test:coverage
 ```
 
-### Test yozish
+### Writing tests
 
 ```typescript
 describe('User API', () => {
@@ -282,33 +282,32 @@ describe('User API', () => {
 });
 ```
 
-## Xatoliklar haqida xabar berish
+## Reporting Bugs
 
-### Bug Report
-
-GitHub Issues'da quyidagi formatda xabar bering:
+Report bugs on GitHub Issues using this format:
 
 ```markdown
-## Xato tavsifi
+## Bug description
 
-Qisqacha xato tavsifi
+A brief description of the bug
 
-## Qayta yaratish qadamlari
+## Steps to reproduce
 
-1. Birinchi qadam
-2. Ikkinchi qadam
+1. First step
+2. Second step
 3. ...
 
-## Kutilgan natija
+## Expected result
 
-Nima bo'lishi kerak edi
+What was expected to happen
 
-## Haqiqiy natija
+## Actual result
 
-Nima bo'ldi
+What actually happened
 
-##截图
-Agar mumkin bo'lsa, screenshot qo'shing
+## Screenshots
+
+Add a screenshot if possible
 
 ## Environment
 
@@ -320,24 +319,24 @@ Agar mumkin bo'lsa, screenshot qo'shing
 ### Feature Request
 
 ```markdown
-## Xususiyat tavsifi
+## Feature description
 
-Qisqacha tavsif
+Brief description
 
-## Muammo
+## Problem
 
-Qanday muammoni hal qiladi
+What problem it solves
 
-## Yechim
+## Solution
 
-Qanday yechim taklif qilasiz
+What solution you propose
 
-## Muqobil yechimlar
+## Alternatives
 
-Boshqa yechimlar (agar mavjud)
+Other solutions (if any)
 ```
 
-## Savollaringiz bo'lsa?
+## Questions?
 
-- GitHub Discussions'da savol bering
-- Issue oching
+- Ask questions in GitHub Discussions
+- Open an issue
