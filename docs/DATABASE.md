@@ -115,20 +115,20 @@
 └─────────────────────┘
 ```
 
-## Modellar
+## Models
 
 ### Company
 
-Kompaniya ma'lumotlari.
+Company information.
 
-| Maydon      | Tur      | Majburiy | Tavsif                  |
-| ----------- | -------- | -------- | ----------------------- |
-| id          | String   | Ha       | CUID, asosiy kalit      |
-| name        | String   | Ha       | Kompaniya nomi          |
-| description | String?  | Yo'q     | Tavsif                  |
-| logo        | String?  | Yo'q     | Logo URL'i              |
-| industry    | String?  | Yo'q     | Soha (IT, Finance, ...) |
-| createdAt   | DateTime | Ha       | Yaratilgan sana         |
+| Field       | Type     | Required | Description                 |
+| ----------- | -------- | -------- | --------------------------- |
+| id          | String   | Yes      | CUID, primary key           |
+| name        | String   | Yes      | Company name                |
+| description | String?  | No       | Description                 |
+| logo        | String?  | No       | Logo URL                    |
+| industry    | String?  | No       | Industry (IT, Finance, ...) |
+| createdAt   | DateTime | Yes      | Creation date               |
 
 **Relations:**
 
@@ -143,38 +143,38 @@ Kompaniya ma'lumotlari.
 
 ### User
 
-Foydalanuvchi/xodim ma'lumotlari.
+User/employee information.
 
-| Maydon        | Tur         | Majburiy | Tavsif                                      |
+| Field         | Type        | Required | Description                                 |
 | ------------- | ----------- | -------- | ------------------------------------------- |
-| id            | String      | Ha       | CUID, asosiy kalit                          |
-| email         | String      | Ha       | Unikal email                                |
-| password      | String      | Ha       | Hashlangan parol                            |
-| name          | String      | Ha       | Ism Familiya                                |
-| role          | Role (Enum) | Ha       | CEO, MANAGER, DEVELOPER, DESIGNER, MARKETER |
-| avatar        | String?     | Yo'q     | Avatar URL'i                                |
-| phone         | String?     | Yo'q     | Telefon raqami                              |
-| salary        | Float?      | Yo'q     | Oylik miqdori                               |
-| salaryDueDate | DateTime?   | Yo'q     | Oylik to'lov sanasi                         |
-| startDate     | DateTime?   | Yo'q     | Ish boshlagan sana                          |
-| department    | String?     | Yo'q     | Bo'lim                                      |
-| companyId     | String      | Ha       | Kompaniya ID (FK)                           |
-| createdAt     | DateTime    | Ha       | Yaratilgan sana                             |
+| id            | String      | Yes      | CUID, primary key                           |
+| email         | String      | Yes      | Unique email                                |
+| password      | String      | Yes      | Hashed password                             |
+| name          | String      | Yes      | Full name                                   |
+| role          | Role (Enum) | Yes      | CEO, MANAGER, DEVELOPER, DESIGNER, MARKETER |
+| avatar        | String?     | No       | Avatar URL                                  |
+| phone         | String?     | No       | Phone number                                |
+| salary        | Float?      | No       | Monthly amount                              |
+| salaryDueDate | DateTime?   | No       | Monthly payment date                        |
+| startDate     | DateTime?   | No       | Start date                                  |
+| department    | String?     | No       | Department                                  |
+| companyId     | String      | Yes      | Company ID (FK)                             |
+| createdAt     | DateTime    | Yes      | Creation date                               |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha qidirish
-- `email` — Unikal email qidirish
+- `companyId` — Search by company
+- `email` — Unique email lookup
 
 **Relations:**
 
 - `company` — N:1 (Company)
-- `assignedTasks` — 1:N (Task) — tayinlangan vazifalar
-- `createdTasks` — 1:N (Task) — yaratgan vazifalar
-- `sentMessages` — 1:N (Message) — yuborgan xabarlar
-- `recvMessages` — 1:N (Message) — qabul qilgan xabarlar
-- `sentFiles` — 1:N (File) — yuborgan fayllar
-- `recvFiles` — 1:N (File) — qabul qilgan fayllar
+- `assignedTasks` — 1:N (Task) — assigned tasks
+- `createdTasks` — 1:N (Task) — created tasks
+- `sentMessages` — 1:N (Message) — sent messages
+- `recvMessages` — 1:N (Message) — received messages
+- `sentFiles` — 1:N (File) — sent files
+- `recvFiles` — 1:N (File) — received files
 - `salaries` — 1:N (Salary)
 - `notifications` — 1:N (Notification)
 
@@ -182,28 +182,28 @@ Foydalanuvchi/xodim ma'lumotlari.
 
 ### Task
 
-Vazifa ma'lumotlari.
+Task information.
 
-| Maydon      | Tur               | Majburiy | Tavsif                           |
+| Field       | Type              | Required | Description                      |
 | ----------- | ----------------- | -------- | -------------------------------- |
-| id          | String            | Ha       | CUID, asosiy kalit               |
-| title       | String            | Ha       | Vazifa sarlavhasi                |
-| description | String?           | Yo'q     | Tavsif                           |
-| status      | TaskStatus (Enum) | Ha       | TODO, IN_PROGRESS, DONE, BLOCKED |
-| priority    | Priority (Enum)   | Ha       | LOW, MEDIUM, HIGH, URGENT        |
-| dueDate     | DateTime?         | Yo'q     | Muddati                          |
-| tags        | String[]          | Ha       | Teglar                           |
-| assigneeId  | String?           | Yo'q     | Tayinlangan foydalanuvchi (FK)   |
-| creatorId   | String            | Ha       | Yaratgan foydalanuvchi (FK)      |
-| companyId   | String            | Ha       | Kompaniya (FK)                   |
-| createdAt   | DateTime          | Ha       | Yaratilgan sana                  |
+| id          | String            | Yes      | CUID, primary key                |
+| title       | String            | Yes      | Task title                       |
+| description | String?           | No       | Description                      |
+| status      | TaskStatus (Enum) | Yes      | TODO, IN_PROGRESS, DONE, BLOCKED |
+| priority    | Priority (Enum)   | Yes      | LOW, MEDIUM, HIGH, URGENT        |
+| dueDate     | DateTime?         | No       | Due date                         |
+| tags        | String[]          | Yes      | Tags                             |
+| assigneeId  | String?           | No       | Assigned user (FK)               |
+| creatorId   | String            | Yes      | Creator (FK)                     |
+| companyId   | String            | Yes      | Company (FK)                     |
+| createdAt   | DateTime          | Yes      | Creation date                    |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha
-- `assigneeId` — Tayinlangan foydalanuvchi bo'yicha
-- `creatorId` — Yaratgan foydalanuvchi bo'yicha
-- `status` — Status bo'yicha
+- `companyId` — By company
+- `assigneeId` — By assigned user
+- `creatorId` — By creator
+- `status` — By status
 
 **Relations:**
 
@@ -215,25 +215,25 @@ Vazifa ma'lumotlari.
 
 ### Message
 
-Xabar ma'lumotlari.
+Message information.
 
-| Maydon     | Tur       | Majburiy | Tavsif                    |
-| ---------- | --------- | -------- | ------------------------- |
-| id         | String    | Ha       | CUID, asosiy kalit        |
-| content    | String    | Ha       | Xabar matni               |
-| read       | Boolean   | Ha       | O'qilgan (default: false) |
-| readAt     | DateTime? | Yo'q     | O'qilgan sana             |
-| senderId   | String    | Ha       | Yuboruvchi (FK)           |
-| receiverId | String    | Ha       | Qabul qiluvchi (FK)       |
-| companyId  | String    | Ha       | Kompaniya (FK)            |
-| createdAt  | DateTime  | Ha       | Yaratilgan sana           |
+| Field      | Type      | Required | Description           |
+| ---------- | --------- | -------- | --------------------- |
+| id         | String    | Yes      | CUID, primary key     |
+| content    | String    | Yes      | Message content       |
+| read       | Boolean   | Yes      | Read (default: false) |
+| readAt     | DateTime? | No       | Read date             |
+| senderId   | String    | Yes      | Sender (FK)           |
+| receiverId | String    | Yes      | Receiver (FK)         |
+| companyId  | String    | Yes      | Company (FK)          |
+| createdAt  | DateTime  | Yes      | Creation date         |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha
-- `senderId` — Yuboruvchi bo'yicha
-- `receiverId` — Qabul qiluvchi bo'yicha
-- `createdAt` — Sana bo'yicha
+- `companyId` — By company
+- `senderId` — By sender
+- `receiverId` — By receiver
+- `createdAt` — By date
 
 **Relations:**
 
@@ -245,25 +245,25 @@ Xabar ma'lumotlari.
 
 ### File
 
-Fayl ma'lumotlari.
+File information.
 
-| Maydon     | Tur      | Majburiy | Tavsif              |
-| ---------- | -------- | -------- | ------------------- |
-| id         | String   | Ha       | CUID, asosiy kalit  |
-| name       | String   | Ha       | Fayl nomi           |
-| url        | String   | Ha       | Fayl URL'i          |
-| size       | Int      | Ha       | Hajm (baytlarda)    |
-| type       | String   | Ha       | MIME turi           |
-| senderId   | String   | Ha       | Yuboruvchi (FK)     |
-| receiverId | String   | Ha       | Qabul qiluvchi (FK) |
-| companyId  | String   | Ha       | Kompaniya (FK)      |
-| createdAt  | DateTime | Ha       | Yaratilgan sana     |
+| Field      | Type     | Required | Description       |
+| ---------- | -------- | -------- | ----------------- |
+| id         | String   | Yes      | CUID, primary key |
+| name       | String   | Yes      | File name         |
+| url        | String   | Yes      | File URL          |
+| size       | Int      | Yes      | Size (in bytes)   |
+| type       | String   | Yes      | MIME type         |
+| senderId   | String   | Yes      | Sender (FK)       |
+| receiverId | String   | Yes      | Receiver (FK)     |
+| companyId  | String   | Yes      | Company (FK)      |
+| createdAt  | DateTime | Yes      | Creation date     |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha
-- `senderId` — Yuboruvchi bo'yicha
-- `receiverId` — Qabul qiluvchi bo'yicha
+- `companyId` — By company
+- `senderId` — By sender
+- `receiverId` — By receiver
 
 **Relations:**
 
@@ -275,26 +275,26 @@ Fayl ma'lumotlari.
 
 ### Salary
 
-Oylik to'lov ma'lumotlari.
+Monthly salary information.
 
-| Maydon     | Tur                 | Majburiy | Tavsif                    |
-| ---------- | ------------------- | -------- | ------------------------- |
-| id         | String              | Ha       | CUID, asosiy kalit        |
-| amount     | Float               | Ha       | Oylik miqdori             |
-| bonus      | Float?              | Yo'q     | Bonus (default: 0)        |
-| deductions | Float?              | Yo'q     | Qisqartmalar (default: 0) |
-| status     | SalaryStatus (Enum) | Ha       | PENDING, PAID, OVERDUE    |
-| paidAt     | DateTime?           | Yo'q     | To'langan sana            |
-| dueDate    | DateTime            | Ha       | To'lov muddati            |
-| userId     | String              | Ha       | Foydalanuvchi (FK)        |
-| companyId  | String              | Ha       | Kompaniya (FK)            |
+| Field      | Type                | Required | Description             |
+| ---------- | ------------------- | -------- | ----------------------- |
+| id         | String              | Yes      | CUID, primary key       |
+| amount     | Float               | Yes      | Monthly amount          |
+| bonus      | Float?              | No       | Bonus (default: 0)      |
+| deductions | Float?              | No       | Deductions (default: 0) |
+| status     | SalaryStatus (Enum) | Yes      | PENDING, PAID, OVERDUE  |
+| paidAt     | DateTime?           | No       | Paid date               |
+| dueDate    | DateTime            | Yes      | Due date                |
+| userId     | String              | Yes      | User (FK)               |
+| companyId  | String              | Yes      | Company (FK)            |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha
-- `userId` — Foydalanuvchi bo'yicha
-- `status` — Status bo'yicha
-- `dueDate` — To'lov muddati bo'yicha
+- `companyId` — By company
+- `userId` — By user
+- `status` — By status
+- `dueDate` — By due date
 
 **Relations:**
 
@@ -305,25 +305,25 @@ Oylik to'lov ma'lumotlari.
 
 ### Notification
 
-Ogohlantirish ma'lumotlari.
+Notification information.
 
-| Maydon    | Tur                     | Majburiy | Tavsif                    |
-| --------- | ----------------------- | -------- | ------------------------- |
-| id        | String                  | Ha       | CUID, asosiy kalit        |
-| title     | String                  | Ha       | Sarlavha                  |
-| message   | String                  | Ha       | Xabar matni               |
-| type      | NotificationType (Enum) | Ha       | TASK, MESSAGE, SALARY     |
-| read      | Boolean                 | Ha       | O'qilgan (default: false) |
-| link      | String?                 | Yo'q     | Havola                    |
-| userId    | String                  | Ha       | Foydalanuvchi (FK)        |
-| companyId | String                  | Ha       | Kompaniya (FK)            |
-| createdAt | DateTime                | Ha       | Yaratilgan sana           |
+| Field     | Type                    | Required | Description           |
+| --------- | ----------------------- | -------- | --------------------- |
+| id        | String                  | Yes      | CUID, primary key     |
+| title     | String                  | Yes      | Title                 |
+| message   | String                  | Yes      | Message content       |
+| type      | NotificationType (Enum) | Yes      | TASK, MESSAGE, SALARY |
+| read      | Boolean                 | Yes      | Read (default: false) |
+| link      | String?                 | No       | Link                  |
+| userId    | String                  | Yes      | User (FK)             |
+| companyId | String                  | Yes      | Company (FK)          |
+| createdAt | DateTime                | Yes      | Creation date         |
 
 **Indexes:**
 
-- `companyId` — Kompaniya bo'yicha
-- `userId` — Foydalanuvchi bo'yicha
-- `read` — O'qilganlik bo'yicha
+- `companyId` — By company
+- `userId` — By user
+- `read` — By read status
 
 **Relations:**
 
@@ -332,7 +332,7 @@ Ogohlantirish ma'lumotlari.
 
 ---
 
-## Enum'lar
+## Enums
 
 ### Role
 
@@ -368,44 +368,44 @@ TASK | MESSAGE | SALARY
 
 ## Migration Guide
 
-### Yangi migration yaratish
+### Creating a new migration
 
 ```bash
 npx prisma migrate dev --name migration_name
 ```
 
-### Migrationlarni production'ga qo'llash
+### Applying migrations to production
 
 ```bash
 npx prisma migrate deploy
 ```
 
-### Schema o'zgartirishlar
+### Schema changes
 
-1. `prisma/schema.prisma` faylini tahrirlang
-2. `npx prisma migrate dev` — yangi migration yarating
-3. `npx prisma generate` — Prisma Client'ni yangilang
-4. Kodni yangilang
+1. Edit the `prisma/schema.prisma` file
+2. `npx prisma migrate dev` — create a new migration
+3. `npx prisma generate` — update the Prisma Client
+4. Update the code
 
-### Boshlang'ich ma'lumotlar
+### Seed data
 
 ```bash
 npx tsx prisma/seed.ts
 ```
 
-Seed fayli quyidagi ma'lumotlarni qo'shadi:
+The seed file adds the following data:
 
-- 1 ta kompaniya (Acme Corp)
-- 5 ta foydalanuvchi (CEO, Manager, Developer, Designer, Marketer)
-- Namuna vazifalar
-- Namuna xabarlar
-- Namuna oyliklar
+- 1 company (Acme Corp)
+- 5 users (CEO, Manager, Developer, Designer, Marketer)
+- Sample tasks
+- Sample messages
+- Sample salaries
 
 ---
 
-## Performance Maslahatlari
+## Performance Tips
 
-1. **Indexlar** — Barcha foreign key'larda indexlar mavjud
-2. **Select** — Faqat kerakli maydonlarni oling (`select` ishlating)
-3. **Pagination** — Katta ro'yxatlar uchun `take`/`skip` ishlating
-4. **Eager Loading** — `include` bilan bog'liq ma'lumotlarni bir vaqtda oling
+1. **Indexes** — Indexes exist on all foreign keys
+2. **Select** — Only fetch the fields you need (use `select`)
+3. **Pagination** — Use `take`/`skip` for large lists
+4. **Eager Loading** — Fetch related data eagerly with `include`

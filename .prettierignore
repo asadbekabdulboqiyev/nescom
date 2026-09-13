@@ -3,3 +3,4 @@ node_modules
 dist
 coverage
 *.min.js
+src/lib/tep/
